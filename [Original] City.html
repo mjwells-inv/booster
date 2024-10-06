@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<!-- saved from url=(0373)https://featherstorageprod-dveschgjgvehgbh3.z01.azurefd.net/assets/3a242d73-4abc-4cea-8d87-b805901a723b?se=2024-09-28T10%3A57%3A20Z&sp=r&sv=2024-08-04&sr=b&skoid=1ccef8f2-5a18-44cf-a8a6-dbc0f68aaea6&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-09-27T10%3A55%3A47Z&ske=2024-10-04T10%3A55%3A47Z&sks=b&skv=2024-08-04&sig=/UuW9xZY0hQfkIFqeuGdJ0XdygLB4xGGF%2BoClzGmEtA%3D -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Night Cityscape Animation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000033;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1197.0" data-gr-ext-installed="">
+<canvas id="cityscape" width="1707" height="781"></canvas>
+<script>
+    const canvas = document.getElementById('cityscape');
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas to window size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initialize();
+    });
+
+    // Variables
+    let buildings = [];
+    let windows = [];
+    let cars = [];
+    let neonSigns = [];
+    const streetY = canvas.height * 0.8;
+    const numBuildings = 10;
+    const carSpeed = 2;
+    const numCars = 5;
+    const windowRows = 5;
+    const windowCols = 4;
+    const windowWidth = 20;
+    const windowHeight = 20;
+    const windowPadding = 10;
+    const buildingWidthMin = 100;
+    const buildingWidthMax = 200;
+    const buildingHeightMin = 200;
+    const buildingHeightMax = canvas.height * 0.6;
+    const neonColors = ['#FF0099', '#00FFAA', '#AA00FF', '#FFFF00'];
+
+    function initialize() {
+        // Initialize buildings
+        buildings = [];
+        windows = [];
+        let x = 0;
+        for (let i = 0; i < numBuildings; i++) {
+            const bw = random(buildingWidthMin, buildingWidthMax);
+            const bh = random(buildingHeightMin, buildingHeightMax);
+            const building = {x: x, y: streetY - bh, width: bw, height: bh};
+            buildings.push(building);
+            // Initialize windows for this building
+            const bWindows = [];
+            const rows = windowRows;
+            const cols = Math.floor((bw - windowPadding) / (windowWidth + windowPadding));
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const wx = x + windowPadding + c * (windowWidth + windowPadding);
+                    const wy = building.y + windowPadding + r * (windowHeight + windowPadding);
+                    bWindows.push({x: wx, y: wy, on: Math.random() > 0.5});
+                }
+            }
+            windows.push(bWindows);
+            x += bw;
+        }
+
+        // Initialize cars
+        cars = [];
+        for (let i = 0; i < numCars; i++) {
+            const car = {
+                x: Math.random() * canvas.width,
+                y: streetY + random(-30, 30),
+                width: 40,
+                height: 20,
+                color: randomColor(),
+                speed: carSpeed + Math.random() * 2
+            };
+            cars.push(car);
+        }
+
+        // Initialize neon signs
+        neonSigns = [];
+        // For simplicity, place a few neon signs on random buildings
+        const numSigns = Math.floor(numBuildings / 3);
+        for (let i = 0; i < numSigns; i++) {
+            const b = buildings[Math.floor(Math.random() * buildings.length)];
+            const signWidth = 80;
+            const signHeight = 30;
+            const x = b.x + (b.width - signWidth) / 2;
+            const y = b.y - signHeight - 10;
+            const color = neonColors[Math.floor(Math.random() * neonColors.length)];
+            neonSigns.push({x, y, width: signWidth, height: signHeight, color, flash: false, flashTimer: 0});
+        }
+    }
+
+    function update() {
+        // Update window lights
+        for (let b = 0; b < windows.length; b++) {
+            for (let w = 0; w < windows[b].length; w++) {
+                if (Math.random() < 0.01) { // 1% chance to toggle
+                    windows[b][w].on = !windows[b][w].on;
+                }
+            }
+        }
+
+        // Update cars
+        for (let car of cars) {
+            car.x += car.speed;
+            if (car.x > canvas.width + car.width) {
+                car.x = -car.width;
+                car.y = streetY + random(-30, 30);
+                car.color = randomColor();
+                car.speed = carSpeed + Math.random() * 2;
+            }
+        }
+
+        // Update neon signs
+        for (let sign of neonSigns) {
+            sign.flashTimer--;
+            if (sign.flashTimer <= 0) {
+                sign.flash = Math.random() < 0.05; // 5% chance to flash
+                sign.flashTimer = random(50, 200);
+            }
+        }
+    }
+
+    function draw() {
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw buildings
+        for (let b = 0; b < buildings.length; b++) {
+            const building = buildings[b];
+            ctx.fillStyle = '#222';
+            ctx.fillRect(building.x, building.y, building.width, building.height);
+            // Draw windows
+            for (let w of windows[b]) {
+                ctx.fillStyle = w.on ? '#FFFF66' : '#111';
+                ctx.fillRect(w.x, w.y, windowWidth, windowHeight);
+            }
+        }
+
+        // Draw street
+        ctx.fillStyle = '#000022';
+        ctx.fillRect(0, streetY, canvas.width, canvas.height - streetY);
+
+        // Draw neon signs
+        for (let sign of neonSigns) {
+            ctx.fillStyle = sign.flash ? '#FFFFFF' : sign.color;
+            ctx.fillRect(sign.x, sign.y, sign.width, sign.height);
+            // Simple text on sign
+            ctx.fillStyle = '#000';
+            ctx.font = '16px sans-serif';
+            ctx.fillText('NEON', sign.x + 10, sign.y + 20);
+        }
+
+        // Draw cars
+        for (let car of cars) {
+            ctx.fillStyle = car.color;
+            ctx.fillRect(car.x, car.y, car.width, car.height);
+            // Draw wheels
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(car.x + 10, car.y + car.height, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(car.x + car.width - 10, car.y + car.height, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    function random(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function randomColor() {
+        const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A8', '#A833FF'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    initialize();
+    loop();
+</script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>

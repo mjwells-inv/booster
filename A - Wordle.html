@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121213;
+            color: #ffffff;
+        }
+        #game {
+            margin: 20px auto;
+            max-width: 500px;
+        }
+        .row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        .tile {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #3a3a3c;
+            margin: 2px;
+            text-transform: uppercase;
+            font-size: 1.5em;
+            text-align: center;
+            line-height: 40px;
+            background-color: #121213;
+            color: #ffffff;
+        }
+        .correct {
+            background-color: #538d4e;
+            border-color: #538d4e;
+            color: #ffffff;
+        }
+        .present {
+            background-color: #b59f3b;
+            border-color: #b59f3b;
+            color: #ffffff;
+        }
+        .absent {
+            background-color: #3a3a3c;
+            border-color: #3a3a3c;
+            color: #ffffff;
+        }
+        #input-row {
+            margin-top: 20px;
+        }
+        #score {
+            margin-top: 20px;
+        }
+        #instructions-btn {
+            margin-top: 20px;
+        }
+        /* Modal styles */
+        #instructions-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #instructions-content {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 20px;
+            border: 1px solid #000000;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            text-align: left;
+            position: relative;
+        }
+        #close-instructions-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #c0c0c0;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Wordle Game</h1>
+    <div id="game"></div>
+
+    <div id="input-row">
+        <input type="text" id="guess-input" maxlength="5" placeholder="Type your guess" />
+        <button id="guess-btn">Guess</button>
+    </div>
+
+    <div id="score">
+        Score: <span id="score-value">0</span>
+    </div>
+
+    <button id="instructions-btn">Instructions</button>
+
+    <div id="instructions-modal">
+        <div id="instructions-content">
+            <button id="close-instructions-btn">X</button>
+            <h2>How to Play</h2>
+            <p>Guess the 5-letter word in as few tries as possible. Each guess must be a valid 5-letter word.</p>
+            <p>After each guess, the color of the tiles will change to show how close your guess was to the word.</p>
+            <p><strong>Green:</strong> Correct letter in the correct position.<br>
+               <strong>Yellow:</strong> Correct letter in the wrong position.<br>
+               <strong>Gray:</strong> Letter not in the word.</p>
+        </div>
+    </div>
+
+    <script>
+        // List of words (for simplicity, a small sample)
+        const wordList = ["apple", "grape", "melon", "berry", "peach", "lemon", "mango", "plum", "cherry", "pearl"];
+
+        let secretWord = '';
+        let currentRow = 0;
+        const maxRows = 6;
+        let score = 0;
+
+        const gameContainer = document.getElementById('game');
+        const guessInput = document.getElementById('guess-input');
+        const guessButton = document.getElementById('guess-btn');
+        const scoreValue = document.getElementById('score-value');
+        const instructionsBtn = document.getElementById('instructions-btn');
+        const instructionsModal = document.getElementById('instructions-modal');
+        const closeInstructionsBtn = document.getElementById('close-instructions-btn');
+
+        // Initialize the game
+        function initGame() {
+            // Choose a random word
+            secretWord = wordList[Math.floor(Math.random() * wordList.length)];
+            console.log('Secret word:', secretWord); // For debugging purposes
+            currentRow = 0;
+            gameContainer.innerHTML = '';
+            for (let i = 0; i < maxRows; i++) {
+                const row = document.createElement('div');
+                row.className = 'row';
+                for (let j = 0; j < 5; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    row.appendChild(tile);
+                }
+                gameContainer.appendChild(row);
+            }
+            guessInput.value = '';
+            guessInput.focus();
+        }
+
+        // Check the guess
+        function checkGuess() {
+            const guess = guessInput.value.toLowerCase();
+            if (guess.length !== 5) {
+                alert('Please enter a 5-letter word.');
+                return;
+            }
+            if (!wordList.includes(guess)) {
+                alert('Not a valid word.');
+                return;
+            }
+
+            const row = gameContainer.children[currentRow];
+            const tiles = row.children;
+
+            // Copy of secret word letters to handle multiple instances
+            let secretWordLetters = secretWord.split('');
+
+            // First pass: check for correct letters in correct positions
+            let letterStates = Array(5).fill('absent'); // default state
+            for (let i = 0; i < 5; i++) {
+                if (guess[i] === secretWord[i]) {
+                    letterStates[i] = 'correct';
+                    secretWordLetters[i] = null; // Mark this letter as used
+                }
+            }
+
+            // Second pass: check for correct letters in wrong positions
+            for (let i = 0; i < 5; i++) {
+                if (letterStates[i] === 'correct') continue;
+                const index = secretWordLetters.indexOf(guess[i]);
+                if (index !== -1) {
+                    letterStates[i] = 'present';
+                    secretWordLetters[index] = null; // Mark this letter as used
+                }
+            }
+
+            // Update tiles
+            for (let i = 0; i < 5; i++) {
+                tiles[i].textContent = guess[i];
+                tiles[i].classList.remove('correct', 'present', 'absent');
+                tiles[i].classList.add(letterStates[i]);
+            }
+
+            if (guess === secretWord) {
+                score++;
+                scoreValue.textContent = score;
+                setTimeout(() => {
+                    alert('Congratulations! You guessed the word!');
+                    initGame();
+                }, 100);
+            } else if (currentRow === maxRows - 1) {
+                setTimeout(() => {
+                    alert(`Sorry, you've used all your tries. The word was "${secretWord.toUpperCase()}".`);
+                    initGame();
+                }, 100);
+            } else {
+                currentRow++;
+                guessInput.value = '';
+                guessInput.focus();
+            }
+        }
+
+        // Show instructions
+        function showInstructions() {
+            instructionsModal.style.display = 'flex';
+        }
+
+        // Close instructions
+        function closeInstructions() {
+            instructionsModal.style.display = 'none';
+        }
+
+        // Event listeners
+        guessButton.addEventListener('click', checkGuess);
+        guessInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkGuess();
+            }
+        });
+        instructionsBtn.addEventListener('click', showInstructions);
+        closeInstructionsBtn.addEventListener('click', closeInstructions);
+        instructionsModal.addEventListener('click', function(e) {
+            if (e.target === instructionsModal) {
+                closeInstructions();
+            }
+        });
+
+        // Initialize the game on page load
+        window.onload = initGame;
+    </script>
+
+</body>
+</html>

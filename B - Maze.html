@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<!-- saved from url=(0371)https://featherstorageprod-dveschgjgvehgbh3.z01.azurefd.net/assets/a50d0741-cdcd-4f50-b6e6-192cc0bde6cd?se=2024-09-28T10%3A10%3A21Z&sp=r&sv=2024-08-04&sr=b&skoid=1ccef8f2-5a18-44cf-a8a6-dbc0f68aaea6&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-09-27T10%3A07%3A01Z&ske=2024-10-04T10%3A07%3A01Z&sks=b&skv=2024-08-04&sig=skHJUPpLEWK2HrRmA7WN54moJ8W1bHBmotP4WyZD3fc%3D -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Maze Game</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #mazeCanvas {
+            border: 2px solid black;
+            background-color: #eee;
+        }
+        #controls {
+            margin: 10px;
+        }
+        #score {
+            font-size: 20px;
+            margin: 10px;
+        }
+        #instructionModal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            padding-top: 100px; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
+        }
+        #instructionModalContent {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+        }
+        #closeInstruction {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        #closeInstruction:hover,
+        #closeInstruction:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1197.0" data-gr-ext-installed="">
+    <h1>Maze Game</h1>
+    <div id="controls">
+        <button id="instructionButton">Instructions</button>
+    </div>
+    <div id="score">Score: 0</div>
+    <canvas id="mazeCanvas" width="500" height="500"></canvas>
+
+    <!-- The Modal -->
+    <div id="instructionModal">
+        <div id="instructionModalContent">
+            <span id="closeInstruction">×</span>
+            <h2>Instructions</h2>
+            <p>Use the arrow keys on your keyboard to move the red square through the maze.</p>
+            <p>Your goal is to reach the green square.</p>
+            <p>Each move increments your score by 1.</p>
+            <p>Good luck!</p>
+        </div>
+    </div>
+
+    <script>
+        // Maze dimensions
+        const mazeRows = 20;
+        const mazeCols = 20;
+        const cellSize = 25;
+
+        let canvas, ctx;
+        let maze;
+        let player;
+        let exit;
+        let score = 0;
+
+        window.onload = function() {
+            canvas = document.getElementById('mazeCanvas');
+            ctx = canvas.getContext('2d');
+
+            maze = generateMaze(mazeRows, mazeCols);
+            player = { row: 0, col: 0 };
+            exit = { row: mazeRows - 1, col: mazeCols - 1 };
+
+            drawMaze();
+            drawPlayer();
+
+            document.addEventListener('keydown', handleKeyDown);
+
+            document.getElementById('instructionButton').onclick = function() {
+                document.getElementById('instructionModal').style.display = "block";
+            };
+            document.getElementById('closeInstruction').onclick = function() {
+                document.getElementById('instructionModal').style.display = "none";
+            };
+            window.onclick = function(event) {
+                if (event.target == document.getElementById('instructionModal')) {
+                    document.getElementById('instructionModal').style.display = "none";
+                }
+            };
+        };
+
+        function handleKeyDown(e) {
+            let newRow = player.row;
+            let newCol = player.col;
+
+            switch (e.key) {
+                case 'ArrowUp':
+                    if (!maze[player.row][player.col].walls.top) {
+                        newRow--;
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (!maze[player.row][player.col].walls.bottom) {
+                        newRow++;
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (!maze[player.row][player.col].walls.left) {
+                        newCol--;
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (!maze[player.row][player.col].walls.right) {
+                        newCol++;
+                    }
+                    break;
+                default:
+                    return;
+            }
+
+            if (newRow >= 0 && newRow < mazeRows && newCol >= 0 && newCol < mazeCols) {
+                player.row = newRow;
+                player.col = newCol;
+                score++;
+                document.getElementById('score').innerText = 'Score: ' + score;
+                drawMaze();
+                drawPlayer();
+
+                if (player.row == exit.row && player.col == exit.col) {
+                    setTimeout(function() {
+                        alert('Congratulations! You completed the maze in ' + score + ' moves.');
+                        // Reset the game
+                        maze = generateMaze(mazeRows, mazeCols);
+                        player = { row: 0, col: 0 };
+                        exit = { row: mazeRows - 1, col: mazeCols - 1 };
+                        score = 0;
+                        document.getElementById('score').innerText = 'Score: ' + score;
+                        drawMaze();
+                        drawPlayer();
+                    }, 100);
+                }
+            }
+        }
+
+        function Cell(row, col) {
+            this.row = row;
+            this.col = col;
+            this.visited = false;
+            this.walls = { top: true, right: true, bottom: true, left: true };
+        }
+
+        function generateMaze(rows, cols) {
+            let grid = [];
+            for (let r = 0; r < rows; r++) {
+                let row = [];
+                for (let c = 0; c < cols; c++) {
+                    row.push(new Cell(r, c));
+                }
+                grid.push(row);
+            }
+
+            let stack = [];
+            let current = grid[0][0];
+            current.visited = true;
+
+            let totalCells = rows * cols;
+            let visitedCells = 1;
+
+            while (visitedCells < totalCells) {
+                let neighbors = getUnvisitedNeighbors(current, grid, rows, cols);
+
+                if (neighbors.length > 0) {
+                    let next = neighbors[Math.floor(Math.random() * neighbors.length)];
+
+                    removeWalls(current, next);
+
+                    stack.push(current);
+
+                    current = next;
+                    current.visited = true;
+                    visitedCells++;
+                } else if (stack.length > 0) {
+                    current = stack.pop();
+                }
+            }
+
+            return grid;
+        }
+
+        function getUnvisitedNeighbors(cell, grid, rows, cols) {
+            let neighbors = [];
+
+            let { row, col } = cell;
+
+            if (row > 0 && !grid[row - 1][col].visited) {
+                neighbors.push(grid[row - 1][col]);
+            }
+            if (row < rows - 1 && !grid[row + 1][col].visited) {
+                neighbors.push(grid[row + 1][col]);
+            }
+            if (col > 0 && !grid[row][col - 1].visited) {
+                neighbors.push(grid[row][col - 1]);
+            }
+            if (col < cols - 1 && !grid[row][col + 1].visited) {
+                neighbors.push(grid[row][col + 1]);
+            }
+
+            return neighbors;
+        }
+
+        function removeWalls(a, b) {
+            let x = a.col - b.col;
+            if (x === 1) {
+                a.walls.left = false;
+                b.walls.right = false;
+            } else if (x === -1) {
+                a.walls.right = false;
+                b.walls.left = false;
+            }
+
+            let y = a.row - b.row;
+            if (y === 1) {
+                a.walls.top = false;
+                b.walls.bottom = false;
+            } else if (y === -1) {
+                a.walls.bottom = false;
+                b.walls.top = false;
+            }
+        }
+
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let r = 0; r < mazeRows; r++) {
+                for (let c = 0; c < mazeCols; c++) {
+                    let x = c * cellSize;
+                    let y = r * cellSize;
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 2;
+
+                    if (maze[r][c].walls.top) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + cellSize, y);
+                        ctx.stroke();
+                    }
+                    if (maze[r][c].walls.right) {
+                        ctx.beginPath();
+                        ctx.moveTo(x + cellSize, y);
+                        ctx.lineTo(x + cellSize, y + cellSize);
+                        ctx.stroke();
+                    }
+                    if (maze[r][c].walls.bottom) {
+                        ctx.beginPath();
+                        ctx.moveTo(x + cellSize, y + cellSize);
+                        ctx.lineTo(x, y + cellSize);
+                        ctx.stroke();
+                    }
+                    if (maze[r][c].walls.left) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y + cellSize);
+                        ctx.lineTo(x, y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw exit
+            ctx.fillStyle = 'green';
+            ctx.fillRect(exit.col * cellSize + 4, exit.row * cellSize + 4, cellSize - 8, cellSize - 8);
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(player.col * cellSize + 4, player.row * cellSize + 4, cellSize - 8, cellSize - 8);
+        }
+    </script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>

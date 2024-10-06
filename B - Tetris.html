@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<!-- saved from url=(0373)https://featherstorageprod-dveschgjgvehgbh3.z01.azurefd.net/assets/ebfdc45e-a4b3-4f89-9023-891f016755f2?se=2024-09-28T10%3A20%3A03Z&sp=r&sv=2024-08-04&sr=b&skoid=1ccef8f2-5a18-44cf-a8a6-dbc0f68aaea6&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-09-27T10%3A13%3A46Z&ske=2024-10-04T10%3A13%3A46Z&sks=b&skv=2024-08-04&sig=Pdypljp0nJkTEn559SNn/QhUP5%2BHeGvwDUH3qDpX3/A%3D -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #gameCanvas {
+            border: 2px solid #333;
+            background-color: #fff;
+        }
+        #scorePanel {
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+        }
+        #instructions {
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1197.0" data-gr-ext-installed="">
+    <div id="gameContainer">
+        <div id="scorePanel">Score: <span id="score">0</span></div>
+        <canvas id="gameCanvas" width="200" height="400"></canvas>
+        <button onclick="showInstructions()">Instructions</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const context = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const squareSize = 20;
+        const rows = canvas.height / squareSize;
+        const cols = canvas.width / squareSize;
+        let board = [];
+        let currentPiece;
+        let score = 0;
+
+        const pieces = [
+            { shape: [[1, 1, 1], [0, 1, 0]], color: 'red' },
+            { shape: [[1, 1, 0], [0, 1, 1]], color: 'green' },
+            { shape: [[0, 1, 1], [1, 1, 0]], color: 'blue' },
+            { shape: [[1, 1], [1, 1]], color: 'yellow' },
+            { shape: [[1, 1, 1, 1]], color: 'purple' },
+        ];
+
+        function drawSquare(x, y, color) {
+            context.fillStyle = color;
+            context.fillRect(x * squareSize, y * squareSize, squareSize, squareSize);
+            context.strokeStyle = 'white';
+            context.strokeRect(x * squareSize, y * squareSize, squareSize, squareSize);
+        }
+
+        function initBoard() {
+            for (let r = 0; r < rows; r++) {
+                board[r] = [];
+                for (let c = 0; c < cols; c++) {
+                    board[r][c] = 'white';
+                }
+            }
+        }
+
+        function drawBoard() {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    drawSquare(c, r, board[r][c]);
+                }
+            }
+        }
+
+        function getRandomPiece() {
+            const randomIndex = Math.floor(Math.random() * pieces.length);
+            const piece = pieces[randomIndex];
+            return {
+                shape: piece.shape,
+                color: piece.color,
+                x: Math.floor(cols / 2) - Math.floor(piece.shape[0].length / 2),
+                y: 0,
+            };
+        }
+
+        function drawPiece(piece) {
+            piece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        drawSquare(piece.x + x, piece.y + y, piece.color);
+                    }
+                });
+            });
+        }
+
+        function clearPiece(piece) {
+            piece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        drawSquare(piece.x + x, piece.y + y, 'white');
+                    }
+                });
+            });
+        }
+
+        function isCollision(nextX, nextY, piece) {
+            for (let y = 0; y < piece.shape.length; y++) {
+                for (let x = 0; x < piece.shape[y].length; x++) {
+                    if (piece.shape[y][x]) {
+                        const newX = piece.x + x + nextX;
+                        const newY = piece.y + y + nextY;
+                        if (newX < 0 || newX >= cols || newY >= rows) return true;
+                        if (newY >= 0 && board[newY][newX] !== 'white') return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function lockPiece(piece) {
+            piece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        const currentY = piece.y + y;
+                        if (currentY < 0) {
+                            // Game over
+                            alert('Game Over!');
+                            board = [];
+                            initBoard();
+                            score = 0;
+                            scoreElement.textContent = score;
+                            return;
+                        }
+                        board[currentY][piece.x + x] = piece.color;
+                    }
+                });
+            });
+        }
+
+        function removeFullRows() {
+            let fullRows = [];
+            for (let r = 0; r < rows; r++) {
+                if (board[r].every(cell => cell !== 'white')) {
+                    fullRows.push(r);
+                }
+            }
+
+            fullRows.forEach(r => {
+                board.splice(r, 1);
+                board.unshift(new Array(cols).fill('white'));
+                score += 10;
+            });
+
+            scoreElement.textContent = score;
+        }
+
+        function movePiece(dx, dy) {
+            if (!currentPiece) return;
+
+            clearPiece(currentPiece);
+            if (!isCollision(dx, dy, currentPiece)) {
+                currentPiece.x += dx;
+                currentPiece.y += dy;
+            } else if (dy > 0) {
+                lockPiece(currentPiece);
+                removeFullRows();
+                currentPiece = getRandomPiece();
+            }
+            drawPiece(currentPiece);
+        }
+
+        function rotatePiece() {
+            clearPiece(currentPiece);
+            const rotatedShape = currentPiece.shape[0].map((_, index) =>
+                currentPiece.shape.map(row => row[index]).reverse()
+            );
+            const originalShape = currentPiece.shape;
+
+            currentPiece.shape = rotatedShape;
+            if (isCollision(0, 0, currentPiece)) {
+                currentPiece.shape = originalShape;
+            }
+            drawPiece(currentPiece);
+        }
+
+        function dropPiece() {
+            movePiece(0, 1);
+        }
+
+        document.addEventListener('keydown', event => {
+            if (!currentPiece) return;
+
+            switch (event.keyCode) {
+                case 37: // Left arrow
+                    movePiece(-1, 0);
+                    break;
+                case 39: // Right arrow
+                    movePiece(1, 0);
+                    break;
+                case 40: // Down arrow
+                    dropPiece();
+                    break;
+                case 38: // Up arrow
+                    rotatePiece();
+                    break;
+            }
+        });
+
+        function showInstructions() {
+            alert('Tetris Instructions:\n\n' +
+                  '- Use left and right arrows to move the piece.\n' +
+                  '- Use up arrow to rotate the piece.\n' +
+                  '- Use down arrow to drop the piece faster.\n' +
+                  '- Complete a line to earn 10 points.\n' +
+                  '- Game ends when pieces reach the top.\n');
+        }
+
+        function gameLoop() {
+            setTimeout(() => {
+                dropPiece();
+                drawBoard();
+                drawPiece(currentPiece);
+                requestAnimationFrame(gameLoop);
+            }, 500);
+        }
+
+        initBoard();
+        currentPiece = getRandomPiece();
+        gameLoop();
+    </script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>

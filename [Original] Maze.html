@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!-- saved from url=(0377)https://featherstorageprod-dveschgjgvehgbh3.z01.azurefd.net/assets/32084244-ca83-46d7-897c-364a9c1b0ad1?se=2024-09-28T10%3A58%3A36Z&sp=r&sv=2024-08-04&sr=b&skoid=1ccef8f2-5a18-44cf-a8a6-dbc0f68aaea6&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-09-27T10%3A54%3A21Z&ske=2024-10-04T10%3A54%3A21Z&sks=b&skv=2024-08-04&sig=dMkp/wPSKPSwu3uS%2BBfTPX/%2BpUjYjYZSujRlHNnN%2B24%3D -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Maze Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        #gameContainer {
+            position: relative;
+            margin-top: 20px;
+        }
+        #gameCanvas {
+            border: 2px solid #000;
+            background-color: #fff;
+        }
+        #controls {
+            margin-top: 10px;
+        }
+        #score {
+            font-size: 18px;
+            margin-right: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1197.0" data-gr-ext-installed="">
+    <h1>Maze Game</h1>
+    <div id="controls">
+        <span id="score">Score: 0</span>
+        <button id="instructionsBtn">Instructions</button>
+    </div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+    </div>
+    <script>
+        // Maze Game Implementation
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const instructionsBtn = document.getElementById('instructionsBtn');
+        const scoreDisplay = document.getElementById('score');
+
+        // Game variables
+        let score = 0;
+        let maze;
+        let cellSize;
+        let player;
+        let exit;
+
+        // Directions
+        const dirs = {
+            'N': [0, -1],
+            'S': [0, 1],
+            'E': [1, 0],
+            'W': [-1, 0]
+        };
+
+        // Initialize the game
+        function init() {
+            // Define maze size (number of cells)
+            const cols = 20;
+            const rows = 20;
+            cellSize = canvas.width / cols;
+
+            // Generate maze
+            maze = generateMaze(cols, rows);
+
+            // Set player starting position
+            player = {x: 0, y: 0};
+
+            // Set exit position
+            exit = {x: cols - 1, y: rows - 1};
+
+            // Reset score
+            score = 0;
+            updateScore();
+
+            // Draw initial maze
+            drawMaze();
+
+            // Listen for key presses
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        // Maze generation using Recursive Backtracker
+        function generateMaze(cols, rows) {
+            // Initialize grid
+            let grid = [];
+            for(let x=0; x<cols; x++) {
+                grid[x] = [];
+                for(let y=0; y<rows; y++) {
+                    grid[x][y] = {
+                        x: x,
+                        y: y,
+                        visited: false,
+                        walls: {N: true, S: true, E: true, W: true}
+                    };
+                }
+            }
+
+            // Recursive backtracker
+            function visit(cell) {
+                cell.visited = true;
+                let directions = shuffle(['N','S','E','W']);
+                for(let dir of directions) {
+                    let nx = cell.x + dirs[dir][0];
+                    let ny = cell.y + dirs[dir][1];
+                    if(nx >=0 && nx < cols && ny >=0 && ny < rows && !grid[nx][ny].visited) {
+                        // Remove walls
+                        cell.walls[dir] = false;
+                        let opposite = {'N':'S','S':'N','E':'W','W':'E'};
+                        grid[nx][ny].walls[opposite[dir]] = false;
+                        visit(grid[nx][ny]);
+                    }
+                }
+            }
+
+            visit(grid[0][0]);
+            return grid;
+        }
+
+        // Shuffle array
+        function shuffle(array) {
+            for(let i = array.length - 1; i >0; i--){
+                let j = Math.floor(Math.random() * (i+1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Draw maze
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+
+            for(let x=0; x<maze.length; x++) {
+                for(let y=0; y<maze[0].length; y++) {
+                    let cell = maze[x][y];
+                    let px = x * cellSize;
+                    let py = y * cellSize;
+                    if(cell.walls.N){
+                        ctx.beginPath();
+                        ctx.moveTo(px, py);
+                        ctx.lineTo(px + cellSize, py);
+                        ctx.stroke();
+                    }
+                    if(cell.walls.S){
+                        ctx.beginPath();
+                        ctx.moveTo(px, py + cellSize);
+                        ctx.lineTo(px + cellSize, py + cellSize);
+                        ctx.stroke();
+                    }
+                    if(cell.walls.W){
+                        ctx.beginPath();
+                        ctx.moveTo(px, py);
+                        ctx.lineTo(px, py + cellSize);
+                        ctx.stroke();
+                    }
+                    if(cell.walls.E){
+                        ctx.beginPath();
+                        ctx.moveTo(px + cellSize, py);
+                        ctx.lineTo(px + cellSize, py + cellSize);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Highlight exit
+            ctx.fillStyle = 'green';
+            ctx.fillRect(exit.x * cellSize + cellSize/4, exit.y * cellSize + cellSize/4, cellSize/2, cellSize/2);
+
+            // Draw player
+            drawPlayer();
+        }
+
+        // Draw player
+        function drawPlayer() {
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(
+                player.x * cellSize + cellSize / 2,
+                player.y * cellSize + cellSize / 2,
+                cellSize / 4,
+                0,
+                2 * Math.PI
+            );
+            ctx.fill();
+        }
+
+        // Handle keydown
+        function handleKeyDown(e) {
+            let key = e.key;
+            let dir;
+            if(key === 'ArrowUp') dir = 'N';
+            else if(key === 'ArrowDown') dir = 'S';
+            else if(key === 'ArrowLeft') dir = 'W';
+            else if(key === 'ArrowRight') dir = 'E';
+            else return;
+
+            e.preventDefault();
+
+            // Check if move is possible
+            if(!maze[player.x][player.y].walls[dir]) {
+                let nx = player.x + dirs[dir][0];
+                let ny = player.y + dirs[dir][1];
+                if(nx >=0 && nx < maze.length && ny >=0 && ny < maze[0].length) {
+                    player.x = nx;
+                    player.y = ny;
+                    score++;
+                    updateScore();
+                    drawMaze();
+                    checkWin();
+                }
+            }
+        }
+
+        // Check if player reached exit
+        function checkWin() {
+            if(player.x === exit.x && player.y === exit.y){
+                setTimeout(() => {
+                    alert('Congratulations! You completed the maze.');
+                    init();
+                }, 100);
+            }
+        }
+
+        // Update score display
+        function updateScore() {
+            scoreDisplay.textContent = 'Score: ' + score;
+        }
+
+        // Show instructions
+        instructionsBtn.addEventListener('click', () => {
+            alert(`Maze Game Instructions:
+- Use arrow keys to navigate the red circle through the maze to the green square.
+- Each successful move increments your score.
+- Reach the exit to win and reset the game.
+
+Have fun!`);
+        });
+
+        // Initialize the game on page load
+        window.onload = init;
+    </script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>

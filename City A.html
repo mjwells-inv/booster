@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<!-- saved from url=(0377)https://featherstorageprod-dveschgjgvehgbh3.z01.azurefd.net/assets/f5f584b2-ded8-44b3-bf10-1efa7e9d70ea?se=2024-09-28T10%3A57%3A20Z&sp=r&sv=2024-08-04&sr=b&skoid=1ccef8f2-5a18-44cf-a8a6-dbc0f68aaea6&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-09-27T10%3A54%3A02Z&ske=2024-10-04T10%3A54%3A02Z&sks=b&skv=2024-08-04&sig=BZ00KavALB85hE1msKpEd%2Bf%2BqHTBi1JjQ%2B7GHrrhWUI%3D -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>Enhanced Night Cityscape Animation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000033;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1197.0" data-gr-ext-installed="">
+<canvas id="cityscape" width="1707" height="781"></canvas>
+<script>
+    const canvas = document.getElementById('cityscape');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initialize();
+    });
+
+    // Variables
+    let buildings = [];
+    let windows = [];
+    let cars = [];
+    let neonSigns = [];
+    let stars = [];
+    let clouds = [];
+    const streetY = canvas.height * 0.85;
+    const numBuildings = 15;
+    const carSpeed = 1;
+    const numCars = 10;
+    const windowRows = 15;
+    const windowCols = 10;
+    const windowWidth = 10;
+    const windowHeight = 15;
+    const windowPadding = 5;
+    const buildingWidthMin = 100;
+    const buildingWidthMax = 250;
+    const neonColors = ['#FF0099', '#00FFAA', '#AA00FF', '#FFFF00', '#FF3300', '#00CCFF'];
+
+    function initialize() {
+        // Initialize buildings
+        buildings = [];
+        windows = [];
+        let x = 0;
+        while (x < canvas.width) {
+            const bw = random(buildingWidthMin, buildingWidthMax);
+            const bh = random(canvas.height * 0.5, canvas.height * 0.9);
+            const building = {x: x, y: streetY - bh, width: bw, height: bh, color: randomBuildingColor()};
+            buildings.push(building);
+            
+            // Initialize windows for this building
+            const bWindows = [];
+            const rows = Math.floor(bh / (windowHeight + windowPadding));
+            const cols = Math.floor(bw / (windowWidth + windowPadding));
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const wx = x + windowPadding + c * (windowWidth + windowPadding);
+                    const wy = building.y + windowPadding + r * (windowHeight + windowPadding);
+                    bWindows.push({x: wx, y: wy, on: Math.random() > 0.3});
+                }
+            }
+            windows.push(bWindows);
+            x += bw;
+        }
+
+        // Initialize cars
+        cars = [];
+        for (let i = 0; i < numCars; i++) {
+            const car = {
+                x: Math.random() * canvas.width,
+                y: streetY + random(10, 50),
+                width: random(30, 50),
+                height: random(20, 30),
+                color: randomColor(),
+                speed: carSpeed + Math.random() * 2
+            };
+            cars.push(car);
+        }
+
+        // Initialize neon signs
+        neonSigns = [];
+        for (let i = 0; i < buildings.length; i += 2) {
+            const b = buildings[i];
+            const signWidth = b.width * 0.8;
+            const signHeight = b.height * 0.1;
+            const x = b.x + (b.width - signWidth) / 2;
+            const y = b.y + b.height * random(0.2, 0.4);
+            const color = neonColors[Math.floor(Math.random() * neonColors.length)];
+            const text = ['HOTEL', 'CAFE', 'BAR', 'CLUB', 'DINER'][Math.floor(Math.random() * 5)];
+            neonSigns.push({x, y, width: signWidth, height: signHeight, color, text, flash: false, flashTimer: 0});
+        }
+
+        // Initialize stars
+        stars = [];
+        for (let i = 0; i < 200; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * streetY * 0.8,
+                r: Math.random() * 1.5,
+                twinkle: Math.random() > 0.7
+            });
+        }
+
+        // Initialize clouds
+        clouds = [];
+        for (let i = 0; i < 5; i++) {
+            clouds.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * streetY * 0.4,
+                width: random(100, 200),
+                height: random(40, 80),
+                speed: random(0.1, 0.3)
+            });
+        }
+    }
+
+    function update() {
+        // Update window lights
+        for (let b = 0; b < windows.length; b++) {
+            for (let w = 0; w < windows[b].length; w++) {
+                if (Math.random() < 0.001) {
+                    windows[b][w].on = !windows[b][w].on;
+                }
+            }
+        }
+
+        // Update cars
+        for (let car of cars) {
+            car.x += car.speed;
+            if (car.x > canvas.width + car.width) {
+                car.x = -car.width;
+                car.y = streetY + random(10, 50);
+                car.color = randomColor();
+                car.speed = carSpeed + Math.random() * 2;
+            }
+        }
+
+        // Update neon signs
+        for (let sign of neonSigns) {
+            sign.flashTimer--;
+            if (sign.flashTimer <= 0) {
+                sign.flash = Math.random() < 0.05;
+                sign.flashTimer = random(50, 200);
+            }
+        }
+
+        // Update stars
+        for (let star of stars) {
+            if (star.twinkle) {
+                star.r = Math.max(0.1, Math.min(1.5, star.r + (Math.random() - 0.5) * 0.1));
+            }
+        }
+
+        // Update clouds
+        for (let cloud of clouds) {
+            cloud.x += cloud.speed;
+            if (cloud.x > canvas.width) {
+                cloud.x = -cloud.width;
+                cloud.y = Math.random() * streetY * 0.4;
+            }
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw sky
+        const gradient = ctx.createLinearGradient(0, 0, 0, streetY);
+        gradient.addColorStop(0, "#000033");
+        gradient.addColorStop(1, "#001155");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, streetY);
+
+        // Draw stars
+        for (let star of stars) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + Math.random() * 0.5})`;
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw moon
+        ctx.fillStyle = "#FFFFCC";
+        ctx.beginPath();
+        ctx.arc(canvas.width * 0.8, canvas.height * 0.2, 30, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw clouds
+        for (let cloud of clouds) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+            drawCloud(cloud.x, cloud.y, cloud.width, cloud.height);
+        }
+
+        // Draw buildings
+        for (let b = 0; b < buildings.length; b++) {
+            const building = buildings[b];
+            drawBuilding(building);
+
+            // Draw windows
+            for (let w of windows[b]) {
+                ctx.fillStyle = w.on ? '#FFFF99' : '#333333';
+                ctx.fillRect(w.x, w.y, windowWidth, windowHeight);
+            }
+        }
+
+        // Draw neon signs
+        for (let sign of neonSigns) {
+            drawNeonSign(sign);
+        }
+
+        // Draw road
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(0, streetY, canvas.width, canvas.height - streetY);
+        
+        // Draw road markings
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.setLineDash([20, 20]);
+        ctx.beginPath();
+        ctx.moveTo(0, streetY + (canvas.height - streetY) / 2);
+        ctx.lineTo(canvas.width, streetY + (canvas.height - streetY) / 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Draw cars
+        for (let car of cars) {
+            drawCar(car);
+        }
+    }
+
+    function drawBuilding(building) {
+        ctx.fillStyle = building.color;
+        ctx.fillRect(building.x, building.y, building.width, building.height);
+
+        // Add some 3D effect
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fillRect(building.x, building.y, 10, building.height);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.fillRect(building.x + building.width - 10, building.y, 10, building.height);
+    }
+
+    function drawNeonSign(sign) {
+        ctx.fillStyle = sign.flash ? '#FFFFFF' : sign.color;
+        ctx.fillRect(sign.x, sign.y, sign.width, sign.height);
+
+        // Add glow effect
+        const glow = ctx.createRadialGradient(
+            sign.x + sign.width / 2, sign.y + sign.height / 2, 0,
+            sign.x + sign.width / 2, sign.y + sign.height / 2, sign.width / 2
+        );
+        glow.addColorStop(0, sign.color + '77');
+        glow.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow;
+        ctx.fillRect(sign.x - 20, sign.y - 20, sign.width + 40, sign.height + 40);
+
+        // Draw text
+        ctx.fillStyle = '#000000';
+        ctx.font = `bold ${sign.height * 0.6}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(sign.text, sign.x + sign.width / 2, sign.y + sign.height / 2);
+    }
+
+    function drawCar(car) {
+        // Car body
+        ctx.fillStyle = car.color;
+        ctx.fillRect(car.x, car.y, car.width, car.height);
+
+        // Car top
+        ctx.fillStyle = car.color;
+        ctx.beginPath();
+        ctx.moveTo(car.x + car.width * 0.2, car.y);
+        ctx.lineTo(car.x + car.width * 0.3, car.y - car.height * 0.4);
+        ctx.lineTo(car.x + car.width * 0.7, car.y - car.height * 0.4);
+        ctx.lineTo(car.x + car.width * 0.8, car.y);
+        ctx.fill();
+
+        // Windows
+        ctx.fillStyle = '#CCCCFF';
+        ctx.fillRect(car.x + car.width * 0.25, car.y - car.height * 0.3, car.width * 0.2, car.height * 0.25);
+        ctx.fillRect(car.x + car.width * 0.55, car.y - car.height * 0.3, car.width * 0.2, car.height * 0.25);
+
+        // Wheels
+        ctx.fillStyle = '#333333';
+        ctx.beginPath();
+        ctx.arc(car.x + car.width * 0.2, car.y + car.height, car.height * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(car.x + car.width * 0.8, car.y + car.height, car.height * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Headlights
+        ctx.fillStyle = '#FFFF00';
+        ctx.beginPath();
+        ctx.arc(car.x + car.width * 0.1, car.y + car.height * 0.5, car.height * 0.1, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function drawCloud(x, y, width, height) {
+        ctx.beginPath();
+        ctx.moveTo(x, y + height / 2);
+        ctx.bezierCurveTo(x, y, x + width / 2, y - height / 2, x + width, y + height / 2);
+        ctx.bezierCurveTo(x + width, y + height, x + width / 2, y + height * 1.5, x, y + height / 2);
+        ctx.fill();
+    }
+
+    function loop() {
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    function random(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function randomColor() {
+        return `hsl(${Math.random() * 360}, 80%, 60%)`;
+    }
+
+    function randomBuildingColor() {
+        return `hsl(${random(180, 240)}, ${random(20, 40)}%, ${random(10, 30)}%)`;
+    }
+
+    initialize();
+    loop();
+</script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>

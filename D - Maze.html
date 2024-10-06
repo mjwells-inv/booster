@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!-- saved from url=(0373)https://featherstorageprod-dveschgjgvehgbh3.z01.azurefd.net/assets/70d88aaf-20d2-45d2-9d85-7a5923183b4c?se=2024-09-28T10%3A13%3A31Z&sp=r&sv=2024-08-04&sr=b&skoid=1ccef8f2-5a18-44cf-a8a6-dbc0f68aaea6&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-09-27T10%3A06%3A49Z&ske=2024-10-04T10%3A06%3A49Z&sks=b&skv=2024-08-04&sig=h%2B8z/qIW4TdIbktjdZol4FGGmxT6wo5AvdTaMG3rm4A%3D -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #gameContainer {
+            margin-top: 20px;
+        }
+        #maze {
+            border: 2px solid #000;
+        }
+        #scoreContainer {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        #instructionsBtn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1197.0" data-gr-ext-installed="">
+    <h1>Maze Game</h1>
+    <div id="gameContainer">
+        <canvas id="maze" width="400" height="400"></canvas>
+    </div>
+    <div id="scoreContainer">Score: <span id="score">0</span></div>
+    <button id="instructionsBtn">Instructions</button>
+
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Instructions</h2>
+            <p>Use the arrow keys to navigate through the maze.</p>
+            <p>Reach the red exit to complete the level.</p>
+            <p>Your score increases with each successful move.</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('maze');
+        const ctx = canvas.getContext('2d');
+        const cellSize = 40;
+        const mazeWidth = canvas.width / cellSize;
+        const mazeHeight = canvas.height / cellSize;
+
+        let player = { x: 0, y: 0 };
+        let exit = { x: mazeWidth - 1, y: mazeHeight - 1 };
+        let score = 0;
+
+        let maze = [];
+        for (let y = 0; y < mazeHeight; y++) {
+            maze[y] = [];
+            for (let x = 0; x < mazeWidth; x++) {
+                maze[y][x] = Math.random() < 0.3;
+            }
+        }
+        maze[player.y][player.x] = false;
+        maze[exit.y][exit.x] = false;
+
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < mazeHeight; y++) {
+                for (let x = 0; x < mazeWidth; x++) {
+                    if (maze[y][x]) {
+                        ctx.fillStyle = '#000';
+                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+            ctx.fillStyle = '#00F';
+            ctx.fillRect(player.x * cellSize, player.y * cellSize, cellSize, cellSize);
+            ctx.fillStyle = '#F00';
+            ctx.fillRect(exit.x * cellSize, exit.y * cellSize, cellSize, cellSize);
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        function movePlayer(dx, dy) {
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+            if (newX >= 0 && newX < mazeWidth && newY >= 0 && newY < mazeHeight && !maze[newY][newX]) {
+                player.x = newX;
+                player.y = newY;
+                score++;
+                updateScore();
+                if (player.x === exit.x && player.y === exit.y) {
+                    alert('Congratulations! You completed the maze!');
+                    resetGame();
+                }
+            }
+            drawMaze();
+        }
+
+        function resetGame() {
+            player = { x: 0, y: 0 };
+            score = 0;
+            updateScore();
+            for (let y = 0; y < mazeHeight; y++) {
+                for (let x = 0; x < mazeWidth; x++) {
+                    maze[y][x] = Math.random() < 0.3;
+                }
+            }
+            maze[player.y][player.x] = false;
+            maze[exit.y][exit.x] = false;
+            drawMaze();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp': movePlayer(0, -1); break;
+                case 'ArrowDown': movePlayer(0, 1); break;
+                case 'ArrowLeft': movePlayer(-1, 0); break;
+                case 'ArrowRight': movePlayer(1, 0); break;
+            }
+        });
+
+        const modal = document.getElementById('instructionsModal');
+        const btn = document.getElementById('instructionsBtn');
+        const span = document.getElementsByClassName('close')[0];
+
+        btn.onclick = () => modal.style.display = 'block';
+        span.onclick = () => modal.style.display = 'none';
+        window.onclick = (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        drawMaze();
+    </script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>

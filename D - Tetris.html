@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<!-- saved from url=(0375)https://featherstorageprod-dveschgjgvehgbh3.z01.azurefd.net/assets/59fe85df-b84d-4002-b24b-7d39058bb627?se=2024-09-28T10%3A53%3A10Z&sp=r&sv=2024-08-04&sr=b&skoid=1ccef8f2-5a18-44cf-a8a6-dbc0f68aaea6&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-09-27T10%3A48%3A07Z&ske=2024-10-04T10%3A48%3A07Z&sks=b&skv=2024-08-04&sig=r4tZ3qWbw%2BX35zt2z8aIQVPA26%2B3KhC1fNO04jalkt4%3D -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #333;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            margin: 0 0 20px;
+        }
+        canvas {
+            border: 2px solid #fff;
+            background-color: #000;
+        }
+        #score {
+            margin-top: 10px;
+        }
+        #instructionsButton {
+            margin: 10px 0;
+            padding: 5px 15px;
+            background-color: #fff;
+            color: #333;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        #instructionsButton:hover {
+            background-color: #ddd;
+        }
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #444;
+            color: #fff;
+            padding: 20px;
+            border: 2px solid #fff;
+            display: none;
+            z-index: 10;
+        }
+        #popup h2 {
+            margin-top: 0;
+        }
+        #closeButton {
+            margin-top: 10px;
+            padding: 5px 15px;
+            background-color: #fff;
+            color: #333;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        #closeButton:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1197.0" data-gr-ext-installed="">
+    <h1>Tetris Game</h1>
+    <button id="instructionsButton">Instructions</button>
+    <canvas id="tetris" width="300" height="600"></canvas>
+    <div id="score">Score: 0</div>
+
+    <div id="popup">
+        <h2>How to Play</h2>
+        <p>Use the arrow keys to move and rotate the blocks.</p>
+        <ul>
+            <li>Left arrow: Move left</li>
+            <li>Right arrow: Move right</li>
+            <li>Up arrow: Rotate block</li>
+            <li>Down arrow: Speed up block</li>
+        </ul>
+        <button id="closeButton">Close</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const instructionsButton = document.getElementById('instructionsButton');
+        const popup = document.getElementById('popup');
+        const closeButton = document.getElementById('closeButton');
+
+        const ROWS = 20;
+        const COLS = 10;
+        const BLOCK_SIZE = 30;
+        let score = 0;
+
+        const shapes = [
+            [ [1, 1, 1, 1] ],
+            [ [1, 1], [1, 1] ],
+            [ [0, 1, 0], [1, 1, 1] ],
+            [ [1, 1, 0], [0, 1, 1] ],
+            [ [0, 1, 1], [1, 1, 0] ]
+        ];
+
+        const colors = ['cyan', 'yellow', 'purple', 'green', 'red'];
+
+        let grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+        let currentPiece = null;
+        let gameOver = false;
+
+        class Piece {
+            constructor(shape, color) {
+                this.shape = shape;
+                this.color = color;
+                this.x = Math.floor(COLS / 2) - Math.floor(shape[0].length / 2);
+                this.y = 0;
+            }
+
+            draw() {
+                context.fillStyle = this.color;
+                for (let row = 0; row < this.shape.length; row++) {
+                    for (let col = 0; col < this.shape[row].length; col++) {
+                        if (this.shape[row][col]) {
+                            context.fillRect(
+                                (this.x + col) * BLOCK_SIZE,
+                                (this.y + row) * BLOCK_SIZE,
+                                BLOCK_SIZE - 1,
+                                BLOCK_SIZE - 1
+                            );
+                        }
+                    }
+                }
+            }
+
+            move(dx, dy) {
+                this.x += dx;
+                this.y += dy;
+            }
+
+            rotate() {
+                const newShape = this.shape[0].map((_, index) =>
+                    this.shape.map(row => row[index]).reverse()
+                );
+                return newShape;
+            }
+
+            collides(dx, dy, shape = this.shape) {
+                for (let row = 0; row < shape.length; row++) {
+                    for (let col = 0; col < shape[row].length; col++) {
+                        if (!shape[row][col]) continue;
+                        const newX = this.x + col + dx;
+                        const newY = this.y + row + dy;
+
+                        if (
+                            newX < 0 ||
+                            newX >= COLS ||
+                            newY >= ROWS ||
+                            grid[newY] && grid[newY][newX]
+                        ) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+
+        function spawnPiece() {
+            const r = Math.floor(Math.random() * shapes.length);
+            currentPiece = new Piece(shapes[r], colors[r]);
+        }
+
+        function freezePiece() {
+            currentPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        grid[currentPiece.y + y][currentPiece.x + x] = currentPiece.color;
+                    }
+                });
+            });
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            outer: for (let row = ROWS - 1; row >= 0; row--) {
+                for (let col = 0; col < COLS; col++) {
+                    if (!grid[row][col]) {
+                        continue outer;
+                    }
+                }
+                grid.splice(row, 1);
+                grid.unshift(Array(COLS).fill(0));
+                linesCleared++;
+            }
+
+            if (linesCleared > 0) {
+                score += linesCleared * 10;
+                scoreElement.innerText = `Score: ${score}`;
+            }
+        }
+
+        function gameOverCheck() {
+            if (currentPiece.y === 0 && currentPiece.collides(0, 1)) {
+                gameOver = true;
+                alert('Game Over!');
+            }
+        }
+
+        function drawGrid() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            for (let row = 0; row < ROWS; row++) {
+                for (let col = 0; col < COLS; col++) {
+                    if (grid[row][col]) {
+                        context.fillStyle = grid[row][col];
+                        context.fillRect(
+                            col * BLOCK_SIZE,
+                            row * BLOCK_SIZE,
+                            BLOCK_SIZE - 1,
+                            BLOCK_SIZE - 1
+                        );
+                    }
+                }
+            }
+        }
+
+        function update() {
+            if (gameOver) return;
+
+            if (currentPiece.collides(0, 1)) {
+                freezePiece();
+                clearLines();
+                gameOverCheck();
+                spawnPiece();
+            } else {
+                currentPiece.move(0, 1);
+            }
+
+            drawGrid();
+            currentPiece.draw();
+        }
+
+        function init() {
+            spawnPiece();
+            setInterval(update, 500);
+
+            document.addEventListener('keydown', (event) => {
+                if (gameOver) return;
+
+                if (event.key === 'ArrowLeft' && !currentPiece.collides(-1, 0)) {
+                    currentPiece.move(-1, 0);
+                } else if (event.key === 'ArrowRight' && !currentPiece.collides(1, 0)) {
+                    currentPiece.move(1, 0);
+                } else if (event.key === 'ArrowDown') {
+                    if (!currentPiece.collides(0, 1)) {
+                        currentPiece.move(0, 1);
+                    }
+                } else if (event.key === 'ArrowUp') {
+                    const newShape = currentPiece.rotate();
+                    if (!currentPiece.collides(0, 0, newShape)) {
+                        currentPiece.shape = newShape;
+                    }
+                }
+
+                drawGrid();
+                currentPiece.draw();
+            });
+        }
+
+        instructionsButton.addEventListener('click', () => {
+            popup.style.display = 'block';
+        });
+
+        closeButton.addEventListener('click', () => {
+            popup.style.display = 'none';
+        });
+
+        init();
+    </script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>

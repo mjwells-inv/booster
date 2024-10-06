@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        #game-container {
+            text-align: center;
+            max-width: 350px;
+            margin: 20px;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-gap: 5px;
+            margin: 20px 0;
+        }
+        .tile {
+            width: 50px;
+            height: 50px;
+            background-color: #ffffff;
+            border: 2px solid #cccccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        #input-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        #input-container input {
+            width: 100px;
+            height: 30px;
+            font-size: 18px;
+            text-align: center;
+        }
+        #input-container button {
+            padding: 5px 10px;
+            font-size: 18px;
+        }
+        #score {
+            margin: 20px 0;
+            font-size: 20px;
+        }
+        #instructions {
+            margin-bottom: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        #instruction-popup {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 10px;
+            max-width: 300px;
+            text-align: center;
+        }
+        #close-popup {
+            margin-top: 20px;
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="instructions">Instructions</div>
+        <div id="instruction-popup">
+            <p>Guess the 5-letter word within 6 attempts.</p>
+            <p>Green = Correct letter and position</p>
+            <p>Yellow = Correct letter, wrong position</p>
+            <p>Gray = Incorrect letter</p>
+            <button id="close-popup">Close</button>
+        </div>
+        
+        <div id="board">
+            <!-- Game grid will be dynamically generated -->
+        </div>
+        
+        <div id="input-container">
+            <input type="text" id="guess-input" maxlength="5" />
+            <button id="submit-btn">Submit</button>
+        </div>
+        
+        <div id="score">Score: 0</div>
+    </div>
+
+    <script>
+        const words = ["apple", "bring", "climb", "drive", "faith"]; // Sample words
+        const wordToGuess = words[Math.floor(Math.random() * words.length)];
+        let currentRow = 0;
+        let currentColumn = 0;
+        let hasWon = false;
+        let score = 0;
+
+        const boardElement = document.getElementById('board');
+        const guessInput = document.getElementById('guess-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const scoreElement = document.getElementById('score');
+        const instructionBtn = document.getElementById('instructions');
+        const instructionPopup = document.getElementById('instruction-popup');
+        const closePopupBtn = document.getElementById('close-popup');
+
+        // Generate the game board
+        for (let i = 0; i < 30; i++) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            boardElement.appendChild(tile);
+        }
+
+        // Show instructions
+        instructionBtn.addEventListener('click', () => {
+            instructionPopup.style.display = 'block';
+        });
+
+        // Close instructions
+        closePopupBtn.addEventListener('click', () => {
+            instructionPopup.style.display = 'none';
+        });
+
+        // Handle guess submission
+        submitBtn.addEventListener('click', () => {
+            const guess = guessInput.value.toLowerCase();
+            if (guess.length !== 5 || hasWon) return;
+            
+            const tiles = Array.from(boardElement.children).slice(currentRow * 5, (currentRow + 1) * 5);
+
+            for (let i = 0; i < 5; i++) {
+                if (guess[i] === wordToGuess[i]) {
+                    tiles[i].style.backgroundColor = 'green';
+                } else if (wordToGuess.includes(guess[i])) {
+                    tiles[i].style.backgroundColor = 'yellow';
+                } else {
+                    tiles[i].style.backgroundColor = 'gray';
+                }
+                tiles[i].textContent = guess[i];
+            }
+
+            currentRow++;
+            if (guess === wordToGuess) {
+                score += 1;
+                scoreElement.textContent = `Score: ${score}`;
+                hasWon = true;
+                alert('Congratulations! You guessed the word!');
+            } else if (currentRow === 6) {
+                alert(`Game Over! The word was "${wordToGuess}".`);
+            }
+
+            guessInput.value = '';
+        });
+
+        // Allow Enter key to submit the guess
+        guessInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>

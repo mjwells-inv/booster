@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #121213;
+            color: #ffffff;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #game {
+            display: grid;
+            grid-template-rows: repeat(6, 50px);
+            grid-gap: 5px;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-gap: 5px;
+        }
+        .tile {
+            border: 2px solid #3a3a3c;
+            background-color: #121213;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            text-transform: uppercase;
+        }
+        .correct {
+            background-color: #538d4e;
+            border-color: #538d4e;
+        }
+        .present {
+            background-color: #b59f3b;
+            border-color: #b59f3b;
+        }
+        .absent {
+            background-color: #3a3a3c;
+            border-color: #3a3a3c;
+        }
+        #keyboard {
+            margin-top: 20px;
+        }
+        .key-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        .key {
+            background-color: #818384;
+            border: none;
+            margin: 2px;
+            padding: 10px;
+            width: 40px;
+            height: 58px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+        .wide-key {
+            width: 60px;
+        }
+        #score {
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+        #instructions-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        #instructions-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #121213;
+            padding: 20px;
+            border: 2px solid #3a3a3c;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+        #instructions-modal h2 {
+            margin-top: 0;
+        }
+        #close-instructions {
+            margin-top: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #818384;
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Wordle Game</h1>
+    <button id="instructions-btn">Instructions</button>
+    <div id="game"></div>
+    <div id="keyboard"></div>
+    <div id="score">Score: 0</div>
+
+    <div id="instructions-modal">
+        <h2>How to Play</h2>
+        <p>Guess the Wordle in six tries.</p>
+        <p>Each guess must be a valid five-letter word. Hit the enter button to submit.</p>
+        <p>After each guess, the color of the tiles will change to show how close your guess was to the word.</p>
+        <p><strong>Examples:</strong></p>
+        <div class="row">
+            <div class="tile correct">W</div>
+            <div class="tile">E</div>
+            <div class="tile">A</div>
+            <div class="tile">R</div>
+            <div class="tile">Y</div>
+        </div>
+        <p>The letter W is in the word and in the correct spot.</p>
+        <div class="row">
+            <div class="tile">P</div>
+            <div class="tile present">I</div>
+            <div class="tile">L</div>
+            <div class="tile">L</div>
+            <div class="tile">S</div>
+        </div>
+        <p>The letter I is in the word but in the wrong spot.</p>
+        <div class="row">
+            <div class="tile">V</div>
+            <div class="tile">A</div>
+            <div class="tile">G</div>
+            <div class="tile absent">U</div>
+            <div class="tile">E</div>
+        </div>
+        <p>The letter U is not in the word in any spot.</p>
+        <button id="close-instructions">Close</button>
+    </div>
+    <div id="overlay"></div>
+
+    <script>
+        const WORDS = [
+            'apple', 'brave', 'charm', 'depth', 'eagle', 'faith', 'grace', 'house', 'input', 'joker',
+            'knock', 'lemon', 'magic', 'night', 'ocean', 'pride', 'queen', 'raise', 'stone', 'trace',
+            'unity', 'vivid', 'world', 'xenon', 'young', 'zebra'
+        ];
+
+        let currentRow = 0;
+        let currentTile = 0;
+        let gameOver = false;
+        let wordle = WORDS[Math.floor(Math.random() * WORDS.length)];
+        let score = 0;
+
+        const gameContainer = document.getElementById('game');
+        const keyboardContainer = document.getElementById('keyboard');
+        const scoreDisplay = document.getElementById('score');
+        const instructionsBtn = document.getElementById('instructions-btn');
+        const instructionsModal = document.getElementById('instructions-modal');
+        const closeInstructionsBtn = document.getElementById('close-instructions');
+        const overlay = document.getElementById('overlay');
+
+        const keys = [
+            ['q','w','e','r','t','y','u','i','o','p'],
+            ['a','s','d','f','g','h','j','k','l'],
+            ['enter','z','x','c','v','b','n','m','back']
+        ];
+
+        // Initialize game board
+        function createBoard() {
+            for(let i = 0; i < 6; i++) {
+                const row = document.createElement('div');
+                row.setAttribute('id', 'row-' + i);
+                row.classList.add('row');
+                for(let j = 0; j < 5; j++) {
+                    const tile = document.createElement('div');
+                    tile.setAttribute('id', 'row-' + i + '-tile-' + j);
+                    tile.classList.add('tile');
+                    row.appendChild(tile);
+                }
+                gameContainer.appendChild(row);
+            }
+        }
+
+        // Initialize keyboard
+        function createKeyboard() {
+            keys.forEach(keyRow => {
+                const rowElement = document.createElement('div');
+                rowElement.classList.add('key-row');
+                keyRow.forEach(key => {
+                    const buttonElement = document.createElement('button');
+                    buttonElement.textContent = key;
+                    buttonElement.setAttribute('id', key);
+                    buttonElement.classList.add('key');
+                    if(key === 'enter' || key === 'back') {
+                        buttonElement.classList.add('wide-key');
+                    }
+                    buttonElement.addEventListener('click', () => handleKeyClick(key));
+                    rowElement.appendChild(buttonElement);
+                });
+                keyboardContainer.appendChild(rowElement);
+            });
+        }
+
+        // Handle key clicks
+        function handleKeyClick(key) {
+            if(!gameOver) {
+                if(key === 'enter') {
+                    checkRow();
+                } else if(key === 'back') {
+                    deleteLetter();
+                } else {
+                    addLetter(key);
+                }
+            }
+        }
+
+        // Add letter to tile
+        function addLetter(letter) {
+            if(currentTile < 5 && currentRow < 6) {
+                const tile = document.getElementById('row-' + currentRow + '-tile-' + currentTile);
+                tile.textContent = letter;
+                tile.setAttribute('data', letter);
+                currentTile++;
+            }
+        }
+
+        // Delete letter from tile
+        function deleteLetter() {
+            if(currentTile > 0) {
+                currentTile--;
+                const tile = document.getElementById('row-' + currentRow + '-tile-' + currentTile);
+                tile.textContent = '';
+                tile.removeAttribute('data');
+            }
+        }
+
+        // Check the current row for correctness
+        function checkRow() {
+            const guess = [];
+            for(let i = 0; i < 5; i++) {
+                const tile = document.getElementById('row-' + currentRow + '-tile-' + i);
+                guess.push(tile.getAttribute('data'));
+            }
+            const guessWord = guess.join('');
+
+            if(guessWord.length !== 5) {
+                alert('Word must be 5 letters');
+                return;
+            }
+
+            if(!WORDS.includes(guessWord)) {
+                alert('Word not in list');
+                return;
+            }
+
+            const guessArray = guessWord.split('');
+            const wordleArray = wordle.split('');
+
+            const colors = ['absent', 'absent', 'absent', 'absent', 'absent'];
+
+            // Check for correct letters
+            for(let i = 0; i < 5; i++) {
+                if(guessArray[i] === wordleArray[i]) {
+                    colors[i] = 'correct';
+                    wordleArray[i] = null;
+                }
+            }
+
+            // Check for present letters
+            for(let i = 0; i < 5; i++) {
+                if(colors[i] !== 'correct' && wordleArray.includes(guessArray[i])) {
+                    colors[i] = 'present';
+                    wordleArray[wordleArray.indexOf(guessArray[i])] = null;
+                }
+            }
+
+            // Apply colors to tiles
+            for(let i = 0; i < 5; i++) {
+                const tile = document.getElementById('row-' + currentRow + '-tile-' + i);
+                tile.classList.add(colors[i]);
+
+                const keyButton = document.getElementById(guessArray[i]);
+                if(keyButton.classList.contains('correct')) continue;
+                if(colors[i] === 'correct') {
+                    keyButton.classList.remove('present');
+                    keyButton.classList.add('correct');
+                } else if(colors[i] === 'present') {
+                    if(!keyButton.classList.contains('correct')) {
+                        keyButton.classList.add('present');
+                    }
+                } else {
+                    keyButton.classList.add('absent');
+                }
+            }
+
+            if(guessWord === wordle) {
+                score++;
+                scoreDisplay.textContent = 'Score: ' + score;
+                alert('Congratulations! You guessed the word!');
+                gameOver = true;
+                return;
+            } else {
+                if(currentRow >= 5) {
+                    alert('Game Over! The word was: ' + wordle);
+                    gameOver = true;
+                    return;
+                }
+                currentRow++;
+                currentTile = 0;
+            }
+        }
+
+        // Instructions modal functions
+        instructionsBtn.addEventListener('click', openInstructions);
+        closeInstructionsBtn.addEventListener('click', closeInstructions);
+        overlay.addEventListener('click', closeInstructions);
+
+        function openInstructions() {
+            instructionsModal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closeInstructions() {
+            instructionsModal.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+
+        // Initialize the game
+        createBoard();
+        createKeyboard();
+
+        // Handle keyboard input
+        document.addEventListener('keydown', (e) => {
+            if(gameOver) return;
+            const key = e.key.toLowerCase();
+            if(key === 'enter') {
+                handleKeyClick('enter');
+            } else if(key === 'backspace') {
+                handleKeyClick('back');
+            } else if(key >= 'a' && key <= 'z') {
+                handleKeyClick(key);
+            }
+        });
+    </script>
+
+</body>
+</html>
