@@ -1,0 +1,127 @@
+<html><head>
+    <title>Sunrise Animation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: black;
+        }
+        #sunriseCanvas {
+            display: block;
+        }
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1199.0" data-gr-ext-installed="">
+    <canvas id="sunriseCanvas" width="1712" height="1178"></canvas>
+    <script>
+        var canvas = document.getElementById('sunriseCanvas');
+        var ctx = canvas.getContext('2d');
+
+        // Resize canvas to fit window
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Update positions
+            sunStartY = canvas.height + sunRadius;
+            sunEndY = canvas.height * 0.3;
+            draw(); // Redraw on resize
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        var sunRadius = 50;
+        var sunStartY;
+        var sunEndY;
+
+        var animationDuration = 10000; // Animation duration in milliseconds
+        var startTime = null;
+
+        function drawLandscape() {
+            // Draw hills
+            ctx.fillStyle = '#2e8b57'; // Sea green color
+
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height * 0.8);
+            ctx.bezierCurveTo(
+                canvas.width * 0.25, canvas.height * 0.7,
+                canvas.width * 0.25, canvas.height * 0.7,
+                canvas.width * 0.5, canvas.height * 0.8
+            );
+            ctx.bezierCurveTo(
+                canvas.width * 0.75, canvas.height * 0.9,
+                canvas.width * 0.75, canvas.height * 0.9,
+                canvas.width, canvas.height * 0.8
+            );
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(0, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function draw(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var progress = (timestamp - startTime) / animationDuration;
+            if (progress > 1) progress = 1; // Cap progress at 1
+
+            // Calculate sun position
+            var sunY = sunStartY - (sunStartY - sunEndY) * progress;
+            
+            // Create sky gradient
+            var gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, 'rgb(0, 0, 51)'); // Dark blue
+            gradient.addColorStop(progress, 'rgb(135, 206, 235)'); // Light blue
+            gradient.addColorStop(1, '#FFD700'); // Gold at the horizon
+
+            // Draw sky
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw landscape
+            drawLandscape();
+
+            // Draw sun glow
+            var sunGlowGradient = ctx.createRadialGradient(
+                canvas.width / 2, sunY, sunRadius,
+                canvas.width / 2, sunY, sunRadius * 5
+            );
+            sunGlowGradient.addColorStop(0, 'rgba(255, 255, 0, 0.7)');
+            sunGlowGradient.addColorStop(1, 'rgba(255, 255, 0, 0)');
+            ctx.fillStyle = sunGlowGradient;
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, sunY, sunRadius * 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw sun
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, sunY, sunRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFD700'; // Gold color
+            ctx.fill();
+
+            // Draw sun rays
+            var numRays = 12;
+            ctx.strokeStyle = 'rgba(255, 215, 0,' + (1 - progress) + ')';
+            ctx.lineWidth = 2;
+            for (var i = 0; i < numRays; i++) {
+                var angle = (Math.PI * 2 / numRays) * i;
+                var rayStartX = canvas.width / 2 + sunRadius * Math.cos(angle);
+                var rayStartY = sunY + sunRadius * Math.sin(angle);
+                var rayLength = sunRadius * 3;
+                var rayEndX = canvas.width / 2 + (sunRadius + rayLength) * Math.cos(angle);
+                var rayEndY = sunY + (sunRadius + rayLength) * Math.sin(angle);
+                ctx.beginPath();
+                ctx.moveTo(rayStartX, rayStartY);
+                ctx.lineTo(rayEndX, rayEndY);
+                ctx.stroke();
+            }
+
+            if (progress < 1) {
+                requestAnimationFrame(draw);
+            }
+        }
+
+        requestAnimationFrame(draw);
+    </script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
