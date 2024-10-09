@@ -1,0 +1,174 @@
+<html><head>
+    <meta charset="UTF-8">
+    <title>Stormy Sky Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #0b0f1a 0%, #1a1f2b 100%);
+            overflow: hidden;
+        }
+
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: #fff;
+            background: linear-gradient(to bottom, #dedede 0%, #aaa 100%);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        /* Cloud 1 */
+        #cloud1 {
+            width: 120px;
+            height: 70px;
+            left: -150px;
+            top: 50px;
+            animation: moveCloud1 40s linear infinite;
+        }
+
+        #cloud1:before, #cloud1:after {
+            content: '';
+            position: absolute;
+            background: inherit;
+            width: 90px;
+            height: 90px;
+            top: -45px;
+            left: 15px;
+            border-radius: 50%;
+        }
+
+        #cloud1:after {
+            width: 150px;
+            height: 100px;
+            top: -40px;
+            left: 50px;
+        }
+
+        /* Cloud 2 */
+        #cloud2 {
+            width: 150px;
+            height: 80px;
+            left: -200px;
+            top: 120px;
+            animation: moveCloud2 50s linear infinite;
+        }
+
+        #cloud2:before, #cloud2:after {
+            content: '';
+            position: absolute;
+            background: inherit;
+            width: 100px;
+            height: 100px;
+            top: -50px;
+            left: 20px;
+            border-radius: 50%;
+        }
+
+        #cloud2:after {
+            width: 160px;
+            height: 110px;
+            top: -45px;
+            left: 70px;
+        }
+
+        /* Cloud animations */
+        @keyframes moveCloud1 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(120vw); }
+        }
+
+        @keyframes moveCloud2 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(120vw); }
+        }
+
+        /* Lightning */
+        #lightning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s ease-in-out;
+        }
+
+        /* Rain */
+        .rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .raindrop {
+            position: absolute;
+            top: -10px;
+            width: 2px;
+            height: 10px;
+            background: #9ecfff;
+            opacity: 0.5;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh);
+            }
+        }
+
+    </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1199.0" data-gr-ext-installed="">
+
+    <div id="lightning" style="opacity: 0;"></div>
+
+    <div class="rain"><div class="raindrop" style="left: 51.8074vw; animation-delay: -10.711s; animation-duration: 0.7956s;"></div><div class="raindrop" style="left: 75.766vw; animation-delay: -13.1836s; animation-duration: 0.813263s;"></div><div class="raindrop" style="left: 30.9749vw; animation-delay: -9.96195s; animation-duration: 0.989809s;"></div><div class="raindrop" style="left: 62.4599vw; animation-delay: -5.89437s; animation-duration: 0.974075s;"></div><div class="raindrop" style="left: 85.01vw; animation-delay: -5.58066s; animation-duration: 0.763506s;"></div><div class="raindrop" style="left: 83.2884vw; animation-delay: -9.58844s; animation-duration: 0.655001s;"></div><div class="raindrop" style="left: 5.25948vw; animation-delay: -16.7474s; animation-duration: 0.516641s;"></div><div class="raindrop" style="left: 63.1649vw; animation-delay: -0.331082s; animation-duration: 0.860037s;"></div><div class="raindrop" style="left: 52.5766vw; animation-delay: -13.5398s; animation-duration: 0.77951s;"></div><div class="raindrop" style="left: 72.9511vw; animation-delay: -3.86739s; animation-duration: 0.721743s;"></div><div class="raindrop" style="left: 75.6013vw; animation-delay: -9.85974s; animation-duration: 0.579403s;"></div><div class="raindrop" style="left: 22.9573vw; animation-delay: -19.8822s; animation-duration: 0.98823s;"></div><div class="raindrop" style="left: 60.1284vw; animation-delay: -4.02976s; animation-duration: 0.722331s;"></div><div class="raindrop" style="left: 49.3168vw; animation-delay: -8.23794s; animation-duration: 0.794089s;"></div><div class="raindrop" style="left: 98.931vw; animation-delay: -10.3551s; animation-duration: 0.852897s;"></div><div class="raindrop" style="left: 55.093vw; animation-delay: -18.4994s; animation-duration: 0.826538s;"></div><div class="raindrop" style="left: 98.3507vw; animation-delay: -4.33116s; animation-duration: 0.882795s;"></div><div class="raindrop" style="left: 99.3677vw; animation-delay: -6.52841s; animation-duration: 0.766241s;"></div><div class="raindrop" style="left: 56.8082vw; animation-delay: -13.3189s; animation-duration: 0.887802s;"></div><div class="raindrop" style="left: 97.8555vw; animation-delay: -4.29835s; animation-duration: 0.66058s;"></div><div class="raindrop" style="left: 95.5216vw; animation-delay: -15.5431s; animation-duration: 0.914287s;"></div><div class="raindrop" style="left: 81.1295vw; animation-delay: -16.2636s; animation-duration: 0.506712s;"></div><div class="raindrop" style="left: 58.2346vw; animation-delay: -6.28894s; animation-duration: 0.652547s;"></div><div class="raindrop" style="left: 14.452vw; animation-delay: -7.35999s; animation-duration: 0.85111s;"></div><div class="raindrop" style="left: 44.8651vw; animation-delay: -17.8342s; animation-duration: 0.575533s;"></div><div class="raindrop" style="left: 53.1309vw; animation-delay: -2.40964s; animation-duration: 0.897961s;"></div><div class="raindrop" style="left: 29.2476vw; animation-delay: -5.53693s; animation-duration: 0.798353s;"></div><div class="raindrop" style="left: 3.81594vw; animation-delay: -8.06457s; animation-duration: 0.545334s;"></div><div class="raindrop" style="left: 34.1271vw; animation-delay: -1.13021s; animation-duration: 0.606817s;"></div><div class="raindrop" style="left: 3.10093vw; animation-delay: -18.7449s; animation-duration: 0.920751s;"></div><div class="raindrop" style="left: 67.3575vw; animation-delay: -13.1141s; animation-duration: 0.5872s;"></div><div class="raindrop" style="left: 70.6739vw; animation-delay: -2.35495s; animation-duration: 0.735742s;"></div><div class="raindrop" style="left: 97.4705vw; animation-delay: -14.0023s; animation-duration: 0.764883s;"></div><div class="raindrop" style="left: 3.80103vw; animation-delay: -8.64772s; animation-duration: 0.507225s;"></div><div class="raindrop" style="left: 51.2114vw; animation-delay: -8.37048s; animation-duration: 0.56357s;"></div><div class="raindrop" style="left: 15.4527vw; animation-delay: -11.1904s; animation-duration: 0.530172s;"></div><div class="raindrop" style="left: 97.4647vw; animation-delay: -2.10587s; animation-duration: 0.629296s;"></div><div class="raindrop" style="left: 96.5812vw; animation-delay: -11.778s; animation-duration: 0.57007s;"></div><div class="raindrop" style="left: 42.6203vw; animation-delay: -11.4987s; animation-duration: 0.775341s;"></div><div class="raindrop" style="left: 24.5587vw; animation-delay: -8.82141s; animation-duration: 0.946297s;"></div><div class="raindrop" style="left: 78.9995vw; animation-delay: -4.27975s; animation-duration: 0.62096s;"></div><div class="raindrop" style="left: 43.4392vw; animation-delay: -11.6065s; animation-duration: 0.816086s;"></div><div class="raindrop" style="left: 36.6536vw; animation-delay: -18.9289s; animation-duration: 0.934972s;"></div><div class="raindrop" style="left: 71.2037vw; animation-delay: -9.57989s; animation-duration: 0.965244s;"></div><div class="raindrop" style="left: 61.7608vw; animation-delay: -17.8658s; animation-duration: 0.852238s;"></div><div class="raindrop" style="left: 53.4472vw; animation-delay: -13.3339s; animation-duration: 0.752467s;"></div><div class="raindrop" style="left: 90.3335vw; animation-delay: -9.78015s; animation-duration: 0.554444s;"></div><div class="raindrop" style="left: 35.3853vw; animation-delay: -14.4782s; animation-duration: 0.717007s;"></div><div class="raindrop" style="left: 17.9099vw; animation-delay: -16.2988s; animation-duration: 0.544123s;"></div><div class="raindrop" style="left: 26.8375vw; animation-delay: -6.71535s; animation-duration: 0.500476s;"></div><div class="raindrop" style="left: 44.6656vw; animation-delay: -4.12069s; animation-duration: 0.645794s;"></div><div class="raindrop" style="left: 92.8315vw; animation-delay: -4.69688s; animation-duration: 0.769034s;"></div><div class="raindrop" style="left: 30.2393vw; animation-delay: -11.8493s; animation-duration: 0.572415s;"></div><div class="raindrop" style="left: 69.69vw; animation-delay: -17.4487s; animation-duration: 0.672384s;"></div><div class="raindrop" style="left: 51.0186vw; animation-delay: -13.6334s; animation-duration: 0.909176s;"></div><div class="raindrop" style="left: 82.4793vw; animation-delay: -12.6098s; animation-duration: 0.944121s;"></div><div class="raindrop" style="left: 0.97585vw; animation-delay: -11.0024s; animation-duration: 0.868498s;"></div><div class="raindrop" style="left: 59.3857vw; animation-delay: -4.7654s; animation-duration: 0.515556s;"></div><div class="raindrop" style="left: 54.314vw; animation-delay: -6.93511s; animation-duration: 0.514048s;"></div><div class="raindrop" style="left: 16.255vw; animation-delay: -19.7325s; animation-duration: 0.964362s;"></div><div class="raindrop" style="left: 1.07918vw; animation-delay: -10.7517s; animation-duration: 0.573585s;"></div><div class="raindrop" style="left: 15.3484vw; animation-delay: -15.01s; animation-duration: 0.964411s;"></div><div class="raindrop" style="left: 84.1192vw; animation-delay: -4.22092s; animation-duration: 0.738695s;"></div><div class="raindrop" style="left: 66.8192vw; animation-delay: -8.05842s; animation-duration: 0.972079s;"></div><div class="raindrop" style="left: 53.0269vw; animation-delay: -18.2037s; animation-duration: 0.687662s;"></div><div class="raindrop" style="left: 94.5976vw; animation-delay: -17.3108s; animation-duration: 0.90814s;"></div><div class="raindrop" style="left: 18.897vw; animation-delay: -9.90312s; animation-duration: 0.508716s;"></div><div class="raindrop" style="left: 71.4779vw; animation-delay: -5.71999s; animation-duration: 0.897531s;"></div><div class="raindrop" style="left: 16.7089vw; animation-delay: -9.92743s; animation-duration: 0.989535s;"></div><div class="raindrop" style="left: 9.55342vw; animation-delay: -18.2969s; animation-duration: 0.994625s;"></div><div class="raindrop" style="left: 97.8967vw; animation-delay: -16.1786s; animation-duration: 0.596469s;"></div><div class="raindrop" style="left: 94.5929vw; animation-delay: -4.7906s; animation-duration: 0.555217s;"></div><div class="raindrop" style="left: 45.1733vw; animation-delay: -16.4947s; animation-duration: 0.635325s;"></div><div class="raindrop" style="left: 86.5077vw; animation-delay: -11.1065s; animation-duration: 0.783862s;"></div><div class="raindrop" style="left: 24.9339vw; animation-delay: -3.9984s; animation-duration: 0.732128s;"></div><div class="raindrop" style="left: 53.7219vw; animation-delay: -7.82163s; animation-duration: 0.983306s;"></div><div class="raindrop" style="left: 55.63vw; animation-delay: -6.9949s; animation-duration: 0.778091s;"></div><div class="raindrop" style="left: 66.2444vw; animation-delay: -8.61374s; animation-duration: 0.769952s;"></div><div class="raindrop" style="left: 4.35618vw; animation-delay: -4.03933s; animation-duration: 0.716057s;"></div><div class="raindrop" style="left: 64.8103vw; animation-delay: -13.383s; animation-duration: 0.580423s;"></div><div class="raindrop" style="left: 11.1688vw; animation-delay: -10.3276s; animation-duration: 0.586089s;"></div><div class="raindrop" style="left: 6.4605vw; animation-delay: -1.34458s; animation-duration: 0.876073s;"></div><div class="raindrop" style="left: 36.4473vw; animation-delay: -5.17474s; animation-duration: 0.888899s;"></div><div class="raindrop" style="left: 82.0734vw; animation-delay: -9.09021s; animation-duration: 0.742816s;"></div><div class="raindrop" style="left: 23.0442vw; animation-delay: -12.4974s; animation-duration: 0.659644s;"></div><div class="raindrop" style="left: 51.2027vw; animation-delay: -15.5321s; animation-duration: 0.643024s;"></div><div class="raindrop" style="left: 90.9716vw; animation-delay: -3.25908s; animation-duration: 0.691628s;"></div><div class="raindrop" style="left: 21.9196vw; animation-delay: -4.94858s; animation-duration: 0.776056s;"></div><div class="raindrop" style="left: 6.2964vw; animation-delay: -19.1736s; animation-duration: 0.771176s;"></div><div class="raindrop" style="left: 57.0551vw; animation-delay: -0.383308s; animation-duration: 0.580423s;"></div><div class="raindrop" style="left: 39.0729vw; animation-delay: -17.6843s; animation-duration: 0.516511s;"></div><div class="raindrop" style="left: 49.7526vw; animation-delay: -19.2965s; animation-duration: 0.984198s;"></div><div class="raindrop" style="left: 8.10163vw; animation-delay: -3.87075s; animation-duration: 0.971214s;"></div><div class="raindrop" style="left: 46.0792vw; animation-delay: -5.54697s; animation-duration: 0.530118s;"></div><div class="raindrop" style="left: 85.5017vw; animation-delay: -18.7676s; animation-duration: 0.754504s;"></div><div class="raindrop" style="left: 12.9991vw; animation-delay: -2.59712s; animation-duration: 0.589732s;"></div><div class="raindrop" style="left: 99.6425vw; animation-delay: -19.8256s; animation-duration: 0.753796s;"></div><div class="raindrop" style="left: 54.7982vw; animation-delay: -3.70355s; animation-duration: 0.668665s;"></div><div class="raindrop" style="left: 89.9025vw; animation-delay: -2.09829s; animation-duration: 0.817826s;"></div><div class="raindrop" style="left: 68.3755vw; animation-delay: -4.93128s; animation-duration: 0.728223s;"></div><div class="raindrop" style="left: 8.47073vw; animation-delay: -6.27799s; animation-duration: 0.821324s;"></div><div class="raindrop" style="left: 82.7551vw; animation-delay: -7.10813s; animation-duration: 0.858513s;"></div><div class="raindrop" style="left: 66.8476vw; animation-delay: -15.0705s; animation-duration: 0.699561s;"></div><div class="raindrop" style="left: 17.8026vw; animation-delay: -11.2685s; animation-duration: 0.543277s;"></div><div class="raindrop" style="left: 16.4336vw; animation-delay: -4.29192s; animation-duration: 0.621265s;"></div><div class="raindrop" style="left: 88.8554vw; animation-delay: -3.44098s; animation-duration: 0.552721s;"></div><div class="raindrop" style="left: 88.2318vw; animation-delay: -14.9713s; animation-duration: 0.74268s;"></div><div class="raindrop" style="left: 55.0463vw; animation-delay: -16.1877s; animation-duration: 0.790733s;"></div><div class="raindrop" style="left: 66.905vw; animation-delay: -4.82229s; animation-duration: 0.636221s;"></div><div class="raindrop" style="left: 33.0648vw; animation-delay: -1.1562s; animation-duration: 0.998209s;"></div><div class="raindrop" style="left: 98.2952vw; animation-delay: -15.6298s; animation-duration: 0.918919s;"></div><div class="raindrop" style="left: 71.6878vw; animation-delay: -8.51134s; animation-duration: 0.978035s;"></div><div class="raindrop" style="left: 1.01655vw; animation-delay: -11.2463s; animation-duration: 0.620496s;"></div><div class="raindrop" style="left: 66.4279vw; animation-delay: -11.4862s; animation-duration: 0.562367s;"></div><div class="raindrop" style="left: 9.20296vw; animation-delay: -11.8382s; animation-duration: 0.764396s;"></div><div class="raindrop" style="left: 40.8082vw; animation-delay: -7.02098s; animation-duration: 0.558352s;"></div><div class="raindrop" style="left: 98.3538vw; animation-delay: -7.43038s; animation-duration: 0.811402s;"></div><div class="raindrop" style="left: 58.1893vw; animation-delay: -15.4853s; animation-duration: 0.887832s;"></div><div class="raindrop" style="left: 22.2525vw; animation-delay: -4.35795s; animation-duration: 0.782172s;"></div><div class="raindrop" style="left: 57.5809vw; animation-delay: -16.3506s; animation-duration: 0.838851s;"></div><div class="raindrop" style="left: 49.5342vw; animation-delay: -13.5822s; animation-duration: 0.998937s;"></div><div class="raindrop" style="left: 43.2748vw; animation-delay: -6.19077s; animation-duration: 0.774444s;"></div><div class="raindrop" style="left: 45.0361vw; animation-delay: -0.0632834s; animation-duration: 0.751357s;"></div><div class="raindrop" style="left: 21.9987vw; animation-delay: -11.4702s; animation-duration: 0.981111s;"></div><div class="raindrop" style="left: 71.638vw; animation-delay: -1.57121s; animation-duration: 0.806053s;"></div><div class="raindrop" style="left: 96.906vw; animation-delay: -19.9746s; animation-duration: 0.542813s;"></div><div class="raindrop" style="left: 94.7828vw; animation-delay: -0.0113962s; animation-duration: 0.529957s;"></div><div class="raindrop" style="left: 74.1815vw; animation-delay: -6.07955s; animation-duration: 0.761429s;"></div><div class="raindrop" style="left: 42.213vw; animation-delay: -18.4903s; animation-duration: 0.860984s;"></div><div class="raindrop" style="left: 99.347vw; animation-delay: -17.1419s; animation-duration: 0.741061s;"></div><div class="raindrop" style="left: 46.0612vw; animation-delay: -7.0653s; animation-duration: 0.825572s;"></div><div class="raindrop" style="left: 90.8443vw; animation-delay: -12.0371s; animation-duration: 0.707734s;"></div><div class="raindrop" style="left: 78.7877vw; animation-delay: -5.264s; animation-duration: 0.524099s;"></div><div class="raindrop" style="left: 42.2638vw; animation-delay: -8.19643s; animation-duration: 0.998539s;"></div><div class="raindrop" style="left: 37.8713vw; animation-delay: -4.23655s; animation-duration: 0.832215s;"></div><div class="raindrop" style="left: 24.8694vw; animation-delay: -12.6358s; animation-duration: 0.831393s;"></div><div class="raindrop" style="left: 60.4228vw; animation-delay: -14.7009s; animation-duration: 0.708281s;"></div><div class="raindrop" style="left: 75.2258vw; animation-delay: -11.845s; animation-duration: 0.607705s;"></div><div class="raindrop" style="left: 65.5882vw; animation-delay: -6.38205s; animation-duration: 0.725508s;"></div><div class="raindrop" style="left: 78.8738vw; animation-delay: -0.19359s; animation-duration: 0.676639s;"></div><div class="raindrop" style="left: 33.742vw; animation-delay: -6.2808s; animation-duration: 0.781185s;"></div><div class="raindrop" style="left: 94.925vw; animation-delay: -19.2883s; animation-duration: 0.99954s;"></div><div class="raindrop" style="left: 32.466vw; animation-delay: -8.99831s; animation-duration: 0.617695s;"></div><div class="raindrop" style="left: 47.0733vw; animation-delay: -19.0361s; animation-duration: 0.557156s;"></div><div class="raindrop" style="left: 90.6279vw; animation-delay: -11.6544s; animation-duration: 0.958594s;"></div><div class="raindrop" style="left: 50.1706vw; animation-delay: -10.7428s; animation-duration: 0.798215s;"></div><div class="raindrop" style="left: 76.6458vw; animation-delay: -17.7267s; animation-duration: 0.502945s;"></div><div class="raindrop" style="left: 96.0981vw; animation-delay: -2.54746s; animation-duration: 0.769849s;"></div><div class="raindrop" style="left: 55.9149vw; animation-delay: -0.751917s; animation-duration: 0.826494s;"></div><div class="raindrop" style="left: 80.4151vw; animation-delay: -5.32559s; animation-duration: 0.848038s;"></div><div class="raindrop" style="left: 99.7773vw; animation-delay: -19.8073s; animation-duration: 0.663162s;"></div><div class="raindrop" style="left: 91.9537vw; animation-delay: -3.53094s; animation-duration: 0.974163s;"></div><div class="raindrop" style="left: 31.9734vw; animation-delay: -0.0108067s; animation-duration: 0.684959s;"></div><div class="raindrop" style="left: 27.5889vw; animation-delay: -0.649774s; animation-duration: 0.651201s;"></div><div class="raindrop" style="left: 13.2815vw; animation-delay: -0.535728s; animation-duration: 0.658413s;"></div><div class="raindrop" style="left: 84.142vw; animation-delay: -18.2725s; animation-duration: 0.998583s;"></div><div class="raindrop" style="left: 62.6119vw; animation-delay: -13.6423s; animation-duration: 0.887452s;"></div><div class="raindrop" style="left: 97.4659vw; animation-delay: -14.4687s; animation-duration: 0.715404s;"></div><div class="raindrop" style="left: 66.9957vw; animation-delay: -1.48507s; animation-duration: 0.811983s;"></div><div class="raindrop" style="left: 92.8775vw; animation-delay: -0.179297s; animation-duration: 0.983423s;"></div><div class="raindrop" style="left: 7.66659vw; animation-delay: -16.2565s; animation-duration: 0.566593s;"></div><div class="raindrop" style="left: 58.3121vw; animation-delay: -17.5488s; animation-duration: 0.522211s;"></div><div class="raindrop" style="left: 30.8392vw; animation-delay: -4.24116s; animation-duration: 0.628557s;"></div><div class="raindrop" style="left: 14.0433vw; animation-delay: -6.77293s; animation-duration: 0.646087s;"></div><div class="raindrop" style="left: 25.8268vw; animation-delay: -9.00973s; animation-duration: 0.711976s;"></div><div class="raindrop" style="left: 68.3837vw; animation-delay: -15.0299s; animation-duration: 0.740843s;"></div><div class="raindrop" style="left: 65.231vw; animation-delay: -18.1737s; animation-duration: 0.619756s;"></div><div class="raindrop" style="left: 64.736vw; animation-delay: -17.5756s; animation-duration: 0.955399s;"></div><div class="raindrop" style="left: 30.0957vw; animation-delay: -17.2856s; animation-duration: 0.627682s;"></div><div class="raindrop" style="left: 54.4941vw; animation-delay: -15.723s; animation-duration: 0.500824s;"></div><div class="raindrop" style="left: 44.1519vw; animation-delay: -18.53s; animation-duration: 0.918546s;"></div><div class="raindrop" style="left: 28.8866vw; animation-delay: -4.04869s; animation-duration: 0.636973s;"></div><div class="raindrop" style="left: 98.2607vw; animation-delay: -2.42801s; animation-duration: 0.612188s;"></div><div class="raindrop" style="left: 47.1192vw; animation-delay: -12.3683s; animation-duration: 0.761847s;"></div><div class="raindrop" style="left: 68.2048vw; animation-delay: -5.40102s; animation-duration: 0.574527s;"></div><div class="raindrop" style="left: 9.71737vw; animation-delay: -0.04103s; animation-duration: 0.648433s;"></div><div class="raindrop" style="left: 33.2068vw; animation-delay: -16.231s; animation-duration: 0.865047s;"></div><div class="raindrop" style="left: 15.6799vw; animation-delay: -15.083s; animation-duration: 0.521459s;"></div><div class="raindrop" style="left: 61.0495vw; animation-delay: -18.9626s; animation-duration: 0.938189s;"></div><div class="raindrop" style="left: 22.2265vw; animation-delay: -15.0067s; animation-duration: 0.770085s;"></div><div class="raindrop" style="left: 48.2165vw; animation-delay: -11.162s; animation-duration: 0.569197s;"></div><div class="raindrop" style="left: 49.4428vw; animation-delay: -17.3351s; animation-duration: 0.844874s;"></div><div class="raindrop" style="left: 44.0884vw; animation-delay: -0.691049s; animation-duration: 0.613303s;"></div><div class="raindrop" style="left: 44.5696vw; animation-delay: -4.67313s; animation-duration: 0.50362s;"></div><div class="raindrop" style="left: 5.03832vw; animation-delay: -4.58231s; animation-duration: 0.77399s;"></div><div class="raindrop" style="left: 49.1045vw; animation-delay: -7.7489s; animation-duration: 0.532662s;"></div><div class="raindrop" style="left: 95.7144vw; animation-delay: -0.702939s; animation-duration: 0.519509s;"></div><div class="raindrop" style="left: 53.7639vw; animation-delay: -7.72509s; animation-duration: 0.775191s;"></div><div class="raindrop" style="left: 11.3495vw; animation-delay: -1.16768s; animation-duration: 0.783769s;"></div><div class="raindrop" style="left: 6.2404vw; animation-delay: -18.5175s; animation-duration: 0.612334s;"></div><div class="raindrop" style="left: 81.6685vw; animation-delay: -19.2868s; animation-duration: 0.723979s;"></div><div class="raindrop" style="left: 8.47398vw; animation-delay: -6.61491s; animation-duration: 0.781018s;"></div><div class="raindrop" style="left: 96.8256vw; animation-delay: -17.4981s; animation-duration: 0.629937s;"></div><div class="raindrop" style="left: 72.4311vw; animation-delay: -17.7226s; animation-duration: 0.808299s;"></div><div class="raindrop" style="left: 13.4634vw; animation-delay: -13.2285s; animation-duration: 0.547765s;"></div><div class="raindrop" style="left: 75.9216vw; animation-delay: -10.7995s; animation-duration: 0.755762s;"></div><div class="raindrop" style="left: 33.1159vw; animation-delay: -11.7447s; animation-duration: 0.888024s;"></div><div class="raindrop" style="left: 5.59873vw; animation-delay: -17.8773s; animation-duration: 0.695161s;"></div><div class="raindrop" style="left: 19.8602vw; animation-delay: -5.6364s; animation-duration: 0.587051s;"></div><div class="raindrop" style="left: 59.974vw; animation-delay: -0.720295s; animation-duration: 0.540892s;"></div></div>
+
+    <div class="cloud" id="cloud1"></div>
+    <div class="cloud" id="cloud2"></div>
+
+    <script>
+        // Lightning
+        function randomLightning() {
+            var randTime = Math.random() * 5000 + 2000; // Between 2 to 7 seconds
+            setTimeout(function() {
+                flash();
+                randomLightning();
+            }, randTime);
+        }
+
+        function flash() {
+            var lightning = document.getElementById('lightning');
+            lightning.style.opacity = '1';
+            setTimeout(function() {
+                lightning.style.opacity = '0';
+            }, 100); // Flash duration
+        }
+
+        randomLightning();
+
+        // Rain
+        function createRain() {
+            var rain = document.querySelector('.rain');
+            var amount = 200; // Number of raindrops
+            for (var i = 0; i < amount; i++) {
+                var drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.animationDelay = Math.random() * -20 + 's';
+                drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+                rain.appendChild(drop);
+            }
+        }
+
+        createRain();
+    </script>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
