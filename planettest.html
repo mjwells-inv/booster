@@ -1,0 +1,300 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Responsive Solar System Model</title>
+<style>
+    body {
+        background-color: black;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: sans-serif;
+        color: white;
+    }
+    
+    .solar-system {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+    
+    .sun {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80px;
+        height: 80px;
+        margin-top: -40px;
+        margin-left: -40px;
+        background-color: yellow;
+        border-radius: 50%;
+        box-shadow: 0 0 30px yellow;
+    }
+    
+    .orbit {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border: 1px dashed rgba(255,255,255,0.5);
+        border-radius: 50%;
+        transform-origin: center;
+        animation: rotate 60s linear infinite;
+    }
+    
+    .planet {
+        position: absolute;
+        left: -10px;
+        top: calc(50% - 10px);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    
+    .mercury {
+        background-color: gray;
+    }
+    
+    .venus {
+        background-color: beige;
+    }
+    
+    .earth {
+        background-color: blue;
+    }
+    
+    .mars {
+        background-color: red;
+    }
+    
+    .jupiter {
+        background-color: orange;
+        width: 30px;
+        height: 30px;
+        left: -15px;
+        top: calc(50% - 15px);
+    }
+    
+    .saturn {
+        background-color: khaki;
+        width: 28px;
+        height: 28px;
+        left: -14px;
+        top: calc(50% - 14px);
+    }
+    
+    .uranus {
+        background-color: lightblue;
+        width: 25px;
+        height: 25px;
+        left: -12.5px;
+        top: calc(50% - 12.5px);
+    }
+    
+    .neptune {
+        background-color: darkblue;
+        width: 25px;
+        height: 25px;
+        left: -12.5px;
+        top: calc(50% - 12.5px);
+    }
+    
+    /* Specific orbits */
+    .mercury-orbit {
+        width: 150px;
+        height: 150px;
+        margin-top: -75px;
+        margin-left: -75px;
+        animation-duration: 10s;
+    }
+    
+    .venus-orbit {
+        width: 200px;
+        height: 200px;
+        margin-top: -100px;
+        margin-left: -100px;
+        animation-duration: 20s;
+    }
+    
+    .earth-orbit {
+        width: 250px;
+        height: 250px;
+        margin-top: -125px;
+        margin-left: -125px;
+        animation-duration: 30s;
+    }
+    
+    .mars-orbit {
+        width: 300px;
+        height: 300px;
+        margin-top: -150px;
+        margin-left: -150px;
+        animation-duration: 40s;
+    }
+    
+    .jupiter-orbit {
+        width: 370px;
+        height: 370px;
+        margin-top: -185px;
+        margin-left: -185px;
+        animation-duration: 50s;
+    }
+    
+    .saturn-orbit {
+        width: 440px;
+        height: 440px;
+        margin-top: -220px;
+        margin-left: -220px;
+        animation-duration: 60s;
+    }
+    
+    .uranus-orbit {
+        width: 510px;
+        height: 510px;
+        margin-top: -255px;
+        margin-left: -255px;
+        animation-duration: 70s;
+    }
+    
+    .neptune-orbit {
+        width: 580px;
+        height: 580px;
+        margin-top: -290px;
+        margin-left: -290px;
+        animation-duration: 80s;
+    }
+    
+    /* Keyframes */
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    /* Info box */
+    .info-box {
+        display: none; /* Hidden by default */
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: rgba(0,0,0,0.8);
+        padding: 20px;
+        width: 300px;
+        box-sizing: border-box;
+        border: 1px solid #fff;
+    }
+    
+    .info-box h2 {
+        margin: 0 0 10px 0;
+    }
+    
+    .info-box p {
+        margin: 0;
+    }
+    
+    .close-btn {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1200.0" data-gr-ext-installed="">
+
+<div class="solar-system">
+    <div class="sun"></div>
+    <div class="orbit mercury-orbit">
+        <div class="planet mercury" data-planet="mercury"></div>
+    </div>
+    <div class="orbit venus-orbit">
+        <div class="planet venus" data-planet="venus"></div>
+    </div>
+    <div class="orbit earth-orbit">
+        <div class="planet earth" data-planet="earth"></div>
+    </div>
+    <div class="orbit mars-orbit">
+        <div class="planet mars" data-planet="mars"></div>
+    </div>
+    <div class="orbit jupiter-orbit">
+        <div class="planet jupiter" data-planet="jupiter"></div>
+    </div>
+    <div class="orbit saturn-orbit">
+        <div class="planet saturn" data-planet="saturn"></div>
+    </div>
+    <div class="orbit uranus-orbit">
+        <div class="planet uranus" data-planet="uranus"></div>
+    </div>
+    <div class="orbit neptune-orbit">
+        <div class="planet neptune" data-planet="neptune"></div>
+    </div>
+</div>
+
+<div class="info-box" style="display: none;">
+    <button class="close-btn">X</button>
+    <h2>Neptune</h2>
+    <p>Neptune is dark, cold, and very windy. It’s the last of the planets in our solar system.</p>
+</div>
+
+<script>
+const planetData = {
+    mercury: {
+        name: 'Mercury',
+        facts: 'Mercury is the smallest planet in our solar system. It’s just a little bigger than Earth’s Moon.'
+    },
+    venus: {
+        name: 'Venus',
+        facts: 'Venus is the hottest planet in our solar system. It has a thick atmosphere full of the greenhouse gas carbon dioxide and clouds made of sulfuric acid.'
+    },
+    earth: {
+        name: 'Earth',
+        facts: 'Earth—our home planet—is the only place we know of so far that’s inhabited by living things.'
+    },
+    mars: {
+        name: 'Mars',
+        facts: 'Mars is a dusty, cold, desert world with a very thin atmosphere.'
+    },
+    jupiter: {
+        name: 'Jupiter',
+        facts: 'Jupiter is more than twice as massive than all the other planets combined.'
+    },
+    saturn: {
+        name: 'Saturn',
+        facts: 'Adorned with thousands of beautiful ringlets, Saturn is unique among the planets.'
+    },
+    uranus: {
+        name: 'Uranus',
+        facts: 'Uranus has an axial tilt of 98 degrees! It basically orbits the sun on its side.'
+    },
+    neptune: {
+        name: 'Neptune',
+        facts: 'Neptune is dark, cold, and very windy. It’s the last of the planets in our solar system.'
+    }
+};
+
+document.querySelectorAll('.planet').forEach(function(planet) {
+    planet.addEventListener('click', function() {
+        const planetName = this.getAttribute('data-planet');
+        const data = planetData[planetName];
+        const infoBox = document.querySelector('.info-box');
+        infoBox.querySelector('h2').textContent = data.name;
+        infoBox.querySelector('p').textContent = data.facts;
+        infoBox.style.display = 'block';
+    });
+});
+
+document.querySelector('.close-btn').addEventListener('click', function() {
+    document.querySelector('.info-box').style.display = 'none';
+});
+</script>
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
